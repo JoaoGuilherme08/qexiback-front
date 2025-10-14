@@ -56,12 +56,12 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in slide-in-from-bottom duration-700 delay-300">
               <Link to="/register">
-                <Button size="lg" variant="hero" className="w-full sm:w-auto bg-white text-primary hover:bg-white/90">
+                <Button size="lg" variant="hero-light" className="w-full sm:w-auto">
                   Começar Agora
                 </Button>
               </Link>
               <Link to="/login">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary">
+                <Button size="lg" variant="hero-outline" className="w-full sm:w-auto">
                   Já Tenho Conta
                 </Button>
               </Link>
@@ -127,7 +127,7 @@ const Index = () => {
               Junte-se a milhares de pessoas que transformam suas compras em impacto social
             </p>
             <Link to="/register">
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-medium">
+              <Button size="lg" variant="hero-light" className="shadow-medium">
                 Criar Conta Grátis
               </Button>
             </Link>
