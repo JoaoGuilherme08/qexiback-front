@@ -66,17 +66,17 @@ const Wallet = () => {
   ];
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
-      confirmed: { color: "bg-green-500", icon: <CheckCircle className="w-3 h-3" />, label: "Confirmado" },
-      pending: { color: "bg-yellow-500", icon: <Clock className="w-3 h-3" />, label: "Pendente" },
-      cancelled: { color: "bg-red-500", icon: <XCircle className="w-3 h-3" />, label: "Cancelado" },
+    const variants: Record<string, { variant: "default" | "secondary" | "destructive"; icon: React.ReactNode; label: string }> = {
+      confirmed: { variant: "secondary", icon: <CheckCircle className="w-3 h-3" />, label: "Confirmado" },
+      pending: { variant: "default", icon: <Clock className="w-3 h-3" />, label: "Pendente" },
+      cancelled: { variant: "destructive", icon: <XCircle className="w-3 h-3" />, label: "Cancelado" },
     };
-    const variant = variants[status] || variants.pending;
+    const config = variants[status] || variants.pending;
     
     return (
-      <Badge className={`${variant.color} text-white gap-1`}>
-        {variant.icon}
-        {variant.label}
+      <Badge variant={config.variant} className="gap-1">
+        {config.icon}
+        {config.label}
       </Badge>
     );
   };
@@ -105,7 +105,7 @@ const Wallet = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button variant="hero" className="w-full bg-white text-primary hover:bg-white/90">
+                <Button variant="hero-light" className="w-full">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Sacar Saldo
                 </Button>
