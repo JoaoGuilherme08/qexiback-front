@@ -15,10 +15,10 @@ const StoreProducts = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState([
-    { id: 1, name: "Café Premium", price: 45.90, cashback: 15, category: "Bebidas", active: true },
-    { id: 2, name: "Combo Breakfast", price: 32.50, cashback: 15, category: "Combos", active: true },
-    { id: 3, name: "Cappuccino", price: 18.00, cashback: 15, category: "Bebidas", active: true },
-    { id: 4, name: "Croissant", price: 12.00, cashback: 10, category: "Doces", active: false },
+    { id: 1, name: "Café Premium", price: 45.90, cashback: 15, category: "Bebidas", active: true, code: "CAFE001" },
+    { id: 2, name: "Combo Breakfast", price: 32.50, cashback: 15, category: "Combos", active: true, code: "COMBO001" },
+    { id: 3, name: "Cappuccino", price: 18.00, cashback: 15, category: "Bebidas", active: true, code: "CAP001" },
+    { id: 4, name: "Croissant", price: 12.00, cashback: 10, category: "Doces", active: false, code: "CROIS001" },
   ]);
 
   const handleLogout = () => {
@@ -67,6 +67,13 @@ const StoreProducts = () => {
                   <div className="space-y-2">
                     <Label htmlFor="productName">Nome do Produto</Label>
                     <Input id="productName" placeholder="Ex: Café Especial" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="productCode">Código do Produto</Label>
+                    <Input id="productCode" placeholder="Ex: CAFE001" />
+                    <p className="text-xs text-muted-foreground">
+                      Código para retirada do produto no estabelecimento
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -144,7 +151,13 @@ const StoreProducts = () => {
                               {product.active ? "Ativo" : "Inativo"}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">{product.category}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-muted-foreground">{product.category}</p>
+                            <span className="text-xs text-muted-foreground">•</span>
+                            <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono">
+                              {product.code}
+                            </code>
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-6">
