@@ -67,10 +67,7 @@ const StoreDashboard = () => {
                 <CardTitle className="text-3xl">{stats.totalSales}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-green-600 flex items-center gap-1">
-                  <TrendingUp className="w-4 h-4" />
-                  +12% este mês
-                </p>
+                
               </CardContent>
             </Card>
 
@@ -85,10 +82,7 @@ const StoreDashboard = () => {
                 <CardTitle className="text-3xl">{stats.activeCustomers}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-green-600 flex items-center gap-1">
-                  <TrendingUp className="w-4 h-4" />
-                  +8% este mês
-                </p>
+                
               </CardContent>
             </Card>
 
