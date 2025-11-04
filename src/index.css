@@ -9,51 +9,45 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Qexiback Brand Colors */
-    --navy-blue: 226 97% 23%;        /* #022873 */
-    --teal-dark: 184 61% 21%;        /* #145259 */
-    --teal-light: 186 30% 41%;       /* #49868C */
-    --gray-light: 220 18% 96%;       /* #F2F4F7 */
+    --brand-purple: 250 47% 23%;     /* #281F56 */
+    --brand-green: 152 100% 46%;     /* #00EA7C */
+    --brand-beige: 30 31% 94%;       /* #F4EFEA */
     
     /* Base Tokens */
-    --background: 0 0% 100%;
-    --foreground: 226 97% 23%;
+    --background: 30 31% 94%;        /* Beige background */
+    --foreground: 250 47% 23%;       /* Purple text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 226 97% 23%;
+    --card: 0 0% 100%;               /* White cards */
+    --card-foreground: 250 47% 23%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 226 97% 23%;
+    --popover-foreground: 250 47% 23%;
 
-    --primary: 226 97% 23%;          /* Navy Blue */
+    --primary: 152 100% 46%;         /* Green buttons */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 184 61% 21%;        /* Teal Dark */
+    --secondary: 250 47% 23%;        /* Purple secondary */
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 186 30% 41%;           /* Teal Light */
-    --accent-foreground: 0 0% 100%;
+    --accent: 152 100% 46%;          /* Green accent */
+    --accent-foreground: 250 47% 23%;
 
-    --muted: 220 18% 96%;            /* Gray Light */
-    --muted-foreground: 226 50% 40%;
+    --muted: 30 31% 94%;             /* Beige muted */
+    --muted-foreground: 250 47% 40%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 18% 90%;
-    --input: 220 18% 90%;
-    --ring: 226 97% 23%;
+    --border: 250 20% 85%;
+    --input: 250 20% 85%;
+    --ring: 152 100% 46%;
 
     --radius: 0.75rem;
-
-    /* Custom Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(226 97% 23%), hsl(184 61% 21%));
-    --gradient-secondary: linear-gradient(135deg, hsl(184 61% 21%), hsl(186 30% 41%));
-    --gradient-hero: linear-gradient(135deg, hsl(226 97% 28%), hsl(184 61% 26%));
     
     /* Shadows */
-    --shadow-soft: 0 2px 8px -2px hsl(226 97% 23% / 0.1);
-    --shadow-medium: 0 4px 16px -4px hsl(226 97% 23% / 0.15);
-    --shadow-strong: 0 8px 24px -8px hsl(226 97% 23% / 0.2);
+    --shadow-soft: 0 2px 8px -2px hsl(250 47% 23% / 0.1);
+    --shadow-medium: 0 4px 16px -4px hsl(250 47% 23% / 0.15);
+    --shadow-strong: 0 8px 24px -8px hsl(250 47% 23% / 0.2);
     
     /* Transitions */
     --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -61,33 +55,33 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 226 97% 8%;
+    --background: 250 47% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 226 90% 12%;
+    --card: 250 40% 12%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 226 90% 12%;
+    --popover: 250 40% 12%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 186 30% 41%;
-    --primary-foreground: 226 97% 8%;
+    --primary: 152 100% 46%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 184 61% 21%;
+    --secondary: 250 47% 23%;
     --secondary-foreground: 0 0% 98%;
 
-    --accent: 226 97% 28%;
+    --accent: 152 100% 40%;
     --accent-foreground: 0 0% 98%;
 
-    --muted: 226 50% 15%;
-    --muted-foreground: 220 18% 70%;
+    --muted: 250 40% 15%;
+    --muted-foreground: 250 20% 70%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 226 50% 20%;
-    --input: 226 50% 20%;
-    --ring: 186 30% 41%;
+    --border: 250 40% 20%;
+    --input: 250 40% 20%;
+    --ring: 152 100% 46%;
   }
 }
 
@@ -101,24 +95,12 @@ All colors MUST be HSL.
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
+    @apply font-heading font-semibold;
   }
 }
 
 /* Custom Utilities */
 @layer utilities {
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-  
-  .gradient-secondary {
-    background: var(--gradient-secondary);
-  }
-  
-  .gradient-hero {
-    background: var(--gradient-hero);
-  }
-
   .shadow-soft {
     box-shadow: var(--shadow-soft);
   }
