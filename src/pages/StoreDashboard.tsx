@@ -5,10 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Users, Wallet, TrendingUp, Package, Tag } from "lucide-react";
-
 const StoreDashboard = () => {
   const navigate = useNavigate();
-
   const handleLogout = () => {
     localStorage.removeItem("userType");
     navigate("/");
@@ -19,17 +17,31 @@ const StoreDashboard = () => {
     totalSales: 1250,
     activeCustomers: 340,
     totalCashback: 15680.50,
-    activeProducts: 28,
+    activeProducts: 28
   };
-
-  const recentTransactions = [
-    { id: 1, customer: "João Silva", product: "Café Premium", value: 45.90, cashback: 6.89, date: "2025-01-10" },
-    { id: 2, customer: "Maria Santos", product: "Combo Breakfast", value: 32.50, cashback: 4.88, date: "2025-01-10" },
-    { id: 3, customer: "Pedro Costa", product: "Cappuccino", value: 18.00, cashback: 2.70, date: "2025-01-09" },
-  ];
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  const recentTransactions = [{
+    id: 1,
+    customer: "João Silva",
+    product: "Café Premium",
+    value: 45.90,
+    cashback: 6.89,
+    date: "2025-01-10"
+  }, {
+    id: 2,
+    customer: "Maria Santos",
+    product: "Combo Breakfast",
+    value: 32.50,
+    cashback: 4.88,
+    date: "2025-01-10"
+  }, {
+    id: 3,
+    customer: "Pedro Costa",
+    product: "Cappuccino",
+    value: 18.00,
+    cashback: 2.70,
+    date: "2025-01-09"
+  }];
+  return <div className="min-h-screen flex flex-col">
       <Navbar userType="store" onLogout={handleLogout} />
 
       <main className="flex-1 py-8">
@@ -120,7 +132,7 @@ const StoreDashboard = () => {
             <Card className="shadow-soft hover:shadow-medium transition-base cursor-pointer" onClick={() => navigate("/store/products")}>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 gradient-secondary rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 gradient-secondary rounded-lg flex items-center justify-center bg-[#00ea7c]">
                     <Package className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -134,7 +146,7 @@ const StoreDashboard = () => {
             <Card className="shadow-soft hover:shadow-medium transition-base cursor-pointer">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center bg-[#00ea7c]">
                     <Tag className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -162,48 +174,13 @@ const StoreDashboard = () => {
 
           {/* Recent Transactions */}
           <Card className="shadow-soft">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Vendas Recentes</CardTitle>
-                  <CardDescription>Últimas transações confirmadas</CardDescription>
-                </div>
-                <Button variant="outline" size="sm">Ver Todas</Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentTransactions.map((transaction) => (
-                  <div
-                    key={transaction.id}
-                    className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <ShoppingBag className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{transaction.customer}</p>
-                        <p className="text-sm text-muted-foreground">{transaction.product}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-lg">R$ {transaction.value.toFixed(2)}</p>
-                      <Badge variant="secondary" className="text-xs">
-                        Cashback: R$ {transaction.cashback.toFixed(2)}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
+            
+            
           </Card>
         </div>
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default StoreDashboard;
