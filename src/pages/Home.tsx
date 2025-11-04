@@ -119,7 +119,7 @@ const Home = () => {
                   <div className="relative h-48 overflow-hidden">
                     <img src={offer.image} alt={offer.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     <div className="absolute top-3 right-3">
-                      <Badge className="bg-accent text-white font-bold text-base px-3 py-1">
+                      <Badge className="font-bold text-base px-3 py-1 text-[#f4efea] bg-[#281f56]">
                         {offer.cashback}% Cashback
                       </Badge>
                     </div>
