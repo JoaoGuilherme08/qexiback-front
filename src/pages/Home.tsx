@@ -7,62 +7,53 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, TrendingUp, ShoppingBag, Coffee, Utensils, Laptop } from "lucide-react";
-
 const Home = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Mock data - ofertas
-  const offers = [
-    {
-      id: 1,
-      title: "Cafeteria Central",
-      description: "Café especial e doces artesanais",
-      cashback: 15,
-      category: "Alimentação",
-      location: "Centro, São Paulo",
-      image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400",
-      icon: Coffee,
-    },
-    {
-      id: 2,
-      title: "Tech Store Premium",
-      description: "Eletrônicos e acessórios",
-      cashback: 10,
-      category: "Tecnologia",
-      location: "Shopping Center",
-      image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400",
-      icon: Laptop,
-    },
-    {
-      id: 3,
-      title: "Restaurante Sabor",
-      description: "Culinária brasileira autêntica",
-      cashback: 12,
-      category: "Restaurante",
-      location: "Jardins, São Paulo",
-      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400",
-      icon: Utensils,
-    },
-    {
-      id: 4,
-      title: "Moda & Estilo",
-      description: "Roupas e acessórios de moda",
-      cashback: 20,
-      category: "Moda",
-      location: "Av. Paulista",
-      image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400",
-      icon: ShoppingBag,
-    },
-  ];
-
+  const offers = [{
+    id: 1,
+    title: "Cafeteria Central",
+    description: "Café especial e doces artesanais",
+    cashback: 15,
+    category: "Alimentação",
+    location: "Centro, São Paulo",
+    image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400",
+    icon: Coffee
+  }, {
+    id: 2,
+    title: "Tech Store Premium",
+    description: "Eletrônicos e acessórios",
+    cashback: 10,
+    category: "Tecnologia",
+    location: "Shopping Center",
+    image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400",
+    icon: Laptop
+  }, {
+    id: 3,
+    title: "Restaurante Sabor",
+    description: "Culinária brasileira autêntica",
+    cashback: 12,
+    category: "Restaurante",
+    location: "Jardins, São Paulo",
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400",
+    icon: Utensils
+  }, {
+    id: 4,
+    title: "Moda & Estilo",
+    description: "Roupas e acessórios de moda",
+    cashback: 20,
+    category: "Moda",
+    location: "Av. Paulista",
+    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400",
+    icon: ShoppingBag
+  }];
   const handleLogout = () => {
     localStorage.removeItem("userType");
     navigate("/");
   };
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Navbar userType="user" onLogout={handleLogout} />
 
       <main className="flex-1">
@@ -83,12 +74,7 @@ const Home = () => {
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    placeholder="Buscar por produto, loja ou categoria..."
-                    className="pl-10 h-12 bg-white"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+                  <Input placeholder="Buscar por produto, loja ou categoria..." className="pl-10 h-12 bg-white" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                 </div>
                 <Button size="lg" className="bg-primary hover:bg-primary/90">
                   Buscar
@@ -102,7 +88,7 @@ const Home = () => {
         <section className="py-6 border-b border-border">
           <div className="container mx-auto px-4">
             <div className="flex gap-2 overflow-x-auto pb-2">
-              <Button variant="default" size="sm">Todos</Button>
+              <Button variant="default" size="sm" className="bg-[#281f56]">Todos</Button>
               <Button variant="outline" size="sm">Alimentação</Button>
               <Button variant="outline" size="sm">Tecnologia</Button>
               <Button variant="outline" size="sm">Moda</Button>
@@ -129,18 +115,9 @@ const Home = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {offers.map((offer) => (
-                <Card
-                  key={offer.id}
-                  className="overflow-hidden hover:shadow-medium transition-base cursor-pointer group"
-                  onClick={() => navigate(`/offers/${offer.id}`)}
-                >
+              {offers.map(offer => <Card key={offer.id} className="overflow-hidden hover:shadow-medium transition-base cursor-pointer group" onClick={() => navigate(`/offers/${offer.id}`)}>
                   <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={offer.image}
-                      alt={offer.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    <img src={offer.image} alt={offer.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     <div className="absolute top-3 right-3">
                       <Badge className="bg-accent text-white font-bold text-base px-3 py-1">
                         {offer.cashback}% Cashback
@@ -169,8 +146,7 @@ const Home = () => {
                       Ver Detalhes
                     </Button>
                   </CardFooter>
-                </Card>
-              ))}
+                </Card>)}
             </div>
           </div>
         </section>
@@ -193,8 +169,6 @@ const Home = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Home;
