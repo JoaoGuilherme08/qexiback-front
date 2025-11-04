@@ -46,7 +46,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-secondary" />
         <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
           <div className="max-w-3xl mx-auto text-center text-white">
-            <h1 className="bg-[#281f56]">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom duration-700">
               Cashback que{" "}
               <span className="bg-gradient-to-r from-accent to-accent/80 bg-clip-text text-transparent">
                 Transforma Vidas
