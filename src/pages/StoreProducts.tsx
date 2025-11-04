@@ -14,12 +14,37 @@ import { toast } from "sonner";
 const StoreProducts = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [productPrice, setProductPrice] = useState("");
+  const [productCashback, setProductCashback] = useState("");
+  const platformPercentage = 5; // Porcentagem da plataforma (será parametrizável no admin)
+  
   const [products, setProducts] = useState([
     { id: 1, name: "Café Premium", price: 45.90, cashback: 15, category: "Bebidas", active: true, code: "CAFE001" },
     { id: 2, name: "Combo Breakfast", price: 32.50, cashback: 15, category: "Combos", active: true, code: "COMBO001" },
     { id: 3, name: "Cappuccino", price: 18.00, cashback: 15, category: "Bebidas", active: true, code: "CAP001" },
     { id: 4, name: "Croissant", price: 12.00, cashback: 10, category: "Doces", active: false, code: "CROIS001" },
   ]);
+
+  // Calcula valores do cashback
+  const calculateCashbackValues = () => {
+    const price = parseFloat(productPrice) || 0;
+    const cashback = parseFloat(productCashback) || 0;
+    
+    const cashbackAmount = (price * cashback) / 100;
+    const platformAmount = (price * platformPercentage) / 100;
+    const clientAmount = cashbackAmount - platformAmount;
+    const finalPrice = price + cashbackAmount;
+    
+    return {
+      cashbackAmount,
+      platformAmount,
+      clientAmount: clientAmount > 0 ? clientAmount : 0,
+      finalPrice,
+      isValid: price > 0 && cashback > 0
+    };
+  };
+
+  const cashbackValues = calculateCashbackValues();
 
   const handleLogout = () => {
     localStorage.removeItem("userType");
@@ -78,13 +103,56 @@ const StoreProducts = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="price">Preço (R$)</Label>
-                      <Input id="price" type="number" step="0.01" placeholder="0,00" />
+                      <Input 
+                        id="price" 
+                        type="number" 
+                        step="0.01" 
+                        placeholder="0,00"
+                        value={productPrice}
+                        onChange={(e) => setProductPrice(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="cashback">Cashback (%)</Label>
-                      <Input id="cashback" type="number" placeholder="15" />
+                      <Input 
+                        id="cashback" 
+                        type="number" 
+                        placeholder="15"
+                        value={productCashback}
+                        onChange={(e) => setProductCashback(e.target.value)}
+                      />
                     </div>
                   </div>
+                  
+                  {/* Cálculo do valor final */}
+                  {cashbackValues.isValid && (
+                    <div className="p-4 bg-muted rounded-lg space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Valor do Produto:</span>
+                        <span className="font-medium">R$ {parseFloat(productPrice).toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Cashback Total ({productCashback}%):</span>
+                        <span className="font-medium">R$ {cashbackValues.cashbackAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="border-t border-border pt-2 space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">• Cliente recebe:</span>
+                          <span className="text-primary font-medium">R$ {cashbackValues.clientAmount.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">• Plataforma ({platformPercentage}%):</span>
+                          <span className="text-muted-foreground">R$ {cashbackValues.platformAmount.toFixed(2)}</span>
+                        </div>
+                      </div>
+                      <div className="border-t border-border pt-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold">Valor Final:</span>
+                          <span className="font-bold text-lg text-primary">R$ {cashbackValues.finalPrice.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="category">Categoria</Label>
                     <Input id="category" placeholder="Ex: Bebidas" />
