@@ -67,7 +67,7 @@ const Home = () => {
 
       <main className="flex-1">
         {/* Hero Search Section */}
-        <section className="gradient-secondary py-12 text-white">
+        <section className="bg-secondary py-12 text-white">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-8">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">
