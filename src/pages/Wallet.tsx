@@ -7,10 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Wallet as WalletIcon, TrendingUp, Heart, ArrowUpRight, ArrowDownRight, Clock, CheckCircle, XCircle } from "lucide-react";
-
 const Wallet = () => {
   const navigate = useNavigate();
-
   const handleLogout = () => {
     localStorage.removeItem("userType");
     navigate("/");
@@ -20,69 +18,72 @@ const Wallet = () => {
   const balance = {
     total: 450.00,
     available: 320.00,
-    pending: 130.00,
+    pending: 130.00
   };
-
-  const transactions = [
-    {
-      id: 1,
-      type: "cashback",
-      store: "Cafeteria Central",
-      amount: 15.50,
-      status: "confirmed",
-      date: "2025-01-10",
-    },
-    {
-      id: 2,
-      type: "donation",
-      institution: "Casa do Idoso",
-      amount: -50.00,
-      status: "confirmed",
-      date: "2025-01-09",
-    },
-    {
-      id: 3,
-      type: "cashback",
-      store: "Tech Store Premium",
-      amount: 32.00,
-      status: "pending",
-      date: "2025-01-08",
-    },
-    {
-      id: 4,
-      type: "cashback",
-      store: "Restaurante Sabor",
-      amount: 24.50,
-      status: "confirmed",
-      date: "2025-01-07",
-    },
-    {
-      id: 5,
-      type: "withdrawal",
-      amount: -100.00,
-      status: "confirmed",
-      date: "2025-01-05",
-    },
-  ];
-
+  const transactions = [{
+    id: 1,
+    type: "cashback",
+    store: "Cafeteria Central",
+    amount: 15.50,
+    status: "confirmed",
+    date: "2025-01-10"
+  }, {
+    id: 2,
+    type: "donation",
+    institution: "Casa do Idoso",
+    amount: -50.00,
+    status: "confirmed",
+    date: "2025-01-09"
+  }, {
+    id: 3,
+    type: "cashback",
+    store: "Tech Store Premium",
+    amount: 32.00,
+    status: "pending",
+    date: "2025-01-08"
+  }, {
+    id: 4,
+    type: "cashback",
+    store: "Restaurante Sabor",
+    amount: 24.50,
+    status: "confirmed",
+    date: "2025-01-07"
+  }, {
+    id: 5,
+    type: "withdrawal",
+    amount: -100.00,
+    status: "confirmed",
+    date: "2025-01-05"
+  }];
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: "default" | "secondary" | "destructive"; icon: React.ReactNode; label: string }> = {
-      confirmed: { variant: "secondary", icon: <CheckCircle className="w-3 h-3" />, label: "Confirmado" },
-      pending: { variant: "default", icon: <Clock className="w-3 h-3" />, label: "Pendente" },
-      cancelled: { variant: "destructive", icon: <XCircle className="w-3 h-3" />, label: "Cancelado" },
+    const variants: Record<string, {
+      variant: "default" | "secondary" | "destructive";
+      icon: React.ReactNode;
+      label: string;
+    }> = {
+      confirmed: {
+        variant: "secondary",
+        icon: <CheckCircle className="w-3 h-3" />,
+        label: "Confirmado"
+      },
+      pending: {
+        variant: "default",
+        icon: <Clock className="w-3 h-3" />,
+        label: "Pendente"
+      },
+      cancelled: {
+        variant: "destructive",
+        icon: <XCircle className="w-3 h-3" />,
+        label: "Cancelado"
+      }
     };
     const config = variants[status] || variants.pending;
-    
-    return (
-      <Badge variant={config.variant} className="gap-1">
+    return <Badge variant={config.variant} className="gap-1">
         {config.icon}
         {config.label}
-      </Badge>
-    );
+      </Badge>;
   };
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Navbar userType="user" onLogout={handleLogout} />
 
       <main className="flex-1 py-8">
@@ -100,12 +101,12 @@ const Wallet = () => {
             <Card className="gradient-primary text-white shadow-medium">
               <CardHeader>
                 <CardDescription className="text-white/80">Saldo Total</CardDescription>
-                <CardTitle className="text-4xl font-bold">
+                <CardTitle className="text-4xl font-bold text-[#281f56]">
                   R$ {balance.total.toFixed(2)}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button variant="hero-light" className="w-full">
+                <Button variant="hero-light" className="w-full bg-[#00ea7c] text-base text-[#f4efea]">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Sacar Saldo
                 </Button>
@@ -120,7 +121,7 @@ const Wallet = () => {
                     <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl text-green-600">
+                <CardTitle className="text-3xl text-[#281f56]">
                   R$ {balance.available.toFixed(2)}
                 </CardTitle>
               </CardHeader>
@@ -139,7 +140,7 @@ const Wallet = () => {
                     <Clock className="w-5 h-5 text-yellow-600" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl text-yellow-600">
+                <CardTitle className="text-3xl text-[#281f56]">
                   R$ {balance.pending.toFixed(2)}
                 </CardTitle>
               </CardHeader>
@@ -198,74 +199,13 @@ const Wallet = () => {
 
           {/* Transactions */}
           <Card className="shadow-soft">
-            <CardHeader>
-              <CardTitle>Histórico de Transações</CardTitle>
-              <CardDescription>
-                Acompanhe todas as suas movimentações
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="all">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="all">Todas</TabsTrigger>
-                  <TabsTrigger value="cashback">Cashback</TabsTrigger>
-                  <TabsTrigger value="donation">Doações</TabsTrigger>
-                  <TabsTrigger value="withdrawal">Saques</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="all" className="space-y-3">
-                  {transactions.map((transaction) => (
-                    <div
-                      key={transaction.id}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div
-                          className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                            transaction.amount > 0 ? "bg-green-100" : "bg-red-100"
-                          }`}
-                        >
-                          {transaction.amount > 0 ? (
-                            <ArrowDownRight className="w-6 h-6 text-green-600" />
-                          ) : (
-                            <ArrowUpRight className="w-6 h-6 text-red-600" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            {transaction.type === "cashback"
-                              ? transaction.store
-                              : transaction.type === "donation"
-                              ? transaction.institution
-                              : "Saque"}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(transaction.date).toLocaleDateString("pt-BR")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        {getStatusBadge(transaction.status)}
-                        <p
-                          className={`font-semibold text-lg ${
-                            transaction.amount > 0 ? "text-green-600" : "text-red-600"
-                          }`}
-                        >
-                          {transaction.amount > 0 ? "+" : ""}R$ {Math.abs(transaction.amount).toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </TabsContent>
-              </Tabs>
-            </CardContent>
+            
+            
           </Card>
         </div>
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Wallet;
