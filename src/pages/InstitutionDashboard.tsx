@@ -86,7 +86,7 @@ const InstitutionDashboard = () => {
 
             <Card className="shadow-soft">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-[#281f56]">
                   <CardDescription>Este Mês</CardDescription>
                   <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-green-600" />
