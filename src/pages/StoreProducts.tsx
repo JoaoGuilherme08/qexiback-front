@@ -154,10 +154,7 @@ const StoreProducts = () => {
                         </div>
                       </div>
                     </div>}
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Categoria</Label>
-                    <Input id="category" placeholder="Ex: Bebidas" />
-                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="description">Descrição</Label>
                     <Input id="description" placeholder="Descrição do produto" />
