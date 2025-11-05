@@ -104,7 +104,7 @@ const InstitutionDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="shadow-soft">
+            <Card className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#00ea7c]">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardDescription>Total de Doadores</CardDescription>
@@ -124,7 +124,7 @@ const InstitutionDashboard = () => {
             <Card className="shadow-soft">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardDescription>Doação Média</CardDescription>
+                  <CardDescription className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#00ea7c]">Doação Média</CardDescription>
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                     <Heart className="w-5 h-5 text-blue-600" />
                   </div>
@@ -141,7 +141,7 @@ const InstitutionDashboard = () => {
 
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Top Donors */}
-            <Card className="shadow-soft">
+            <Card className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#00ea7c]">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
