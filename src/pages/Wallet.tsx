@@ -6,9 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Wallet as WalletIcon, TrendingUp, Heart, ArrowUpRight, ArrowDownRight, Clock, CheckCircle, XCircle } from "lucide-react";
 const Wallet = () => {
   const navigate = useNavigate();
+  const [donationDialogOpen, setDonationDialogOpen] = useState(false);
+  const [donationPercentage, setDonationPercentage] = useState([50]);
+  const [selectedInstitution, setSelectedInstitution] = useState("");
+
   const handleLogout = () => {
     localStorage.removeItem("userType");
     navigate("/");
@@ -20,6 +27,31 @@ const Wallet = () => {
     available: 320.00,
     pending: 130.00
   };
+
+  const institutions = [
+    {
+      id: "1",
+      name: "Casa do Idoso",
+      logo: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=100&h=100&fit=crop"
+    },
+    {
+      id: "2",
+      name: "Lar dos Animais",
+      logo: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=100&h=100&fit=crop"
+    },
+    {
+      id: "3",
+      name: "Creche Esperança",
+      logo: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=100&h=100&fit=crop"
+    },
+    {
+      id: "4",
+      name: "Instituto Educação",
+      logo: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=100&h=100&fit=crop"
+    }
+  ];
+
+  const donationAmount = (balance.available * donationPercentage[0]) / 100;
   const transactions = [{
     id: 1,
     type: "cashback",
@@ -169,7 +201,11 @@ const Wallet = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <Button variant="secondary" className="w-full">
+                <Button 
+                  variant="secondary" 
+                  className="w-full"
+                  onClick={() => setDonationDialogOpen(true)}
+                >
                   Ver Instituições
                 </Button>
               </CardContent>
@@ -206,6 +242,87 @@ const Wallet = () => {
       </main>
 
       <Footer />
+
+      <Dialog open={donationDialogOpen} onOpenChange={setDonationDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Doar Cashback</DialogTitle>
+            <DialogDescription>
+              Escolha quanto do seu saldo disponível deseja doar
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Porcentagem da doação</span>
+                <span className="text-2xl font-bold text-primary">{donationPercentage[0]}%</span>
+              </div>
+              <Slider
+                value={donationPercentage}
+                onValueChange={setDonationPercentage}
+                max={100}
+                step={5}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>0%</span>
+                <span>50%</span>
+                <span>100%</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Selecione a Instituição</label>
+              <Select value={selectedInstitution} onValueChange={setSelectedInstitution}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Escolha uma instituição" />
+                </SelectTrigger>
+                <SelectContent className="bg-background">
+                  {institutions.map((institution) => (
+                    <SelectItem key={institution.id} value={institution.id}>
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={institution.logo} 
+                          alt={institution.name}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                        <span>{institution.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Saldo disponível:</span>
+                <span className="font-medium">R$ {balance.available.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-lg font-bold">
+                <span>Valor da doação:</span>
+                <span className="text-primary">R$ {donationAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Saldo após doação:</span>
+                <span className="font-medium">R$ {(balance.available - donationAmount).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <Button 
+              className="w-full" 
+              disabled={!selectedInstitution}
+              onClick={() => {
+                // TODO: Implement donation logic
+                setDonationDialogOpen(false);
+              }}
+            >
+              Confirmar Doação
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>;
 };
 export default Wallet;
