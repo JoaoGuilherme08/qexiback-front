@@ -75,7 +75,7 @@ const InstitutionDashboard = () => {
                     <DollarSign className="w-5 h-5 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl text-[#281f56]">R$ {stats.totalDonations.toFixed(2)}</CardTitle>
+                <CardTitle className="text-3xl">R$ {stats.totalDonations.toFixed(2)}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-white/80">
@@ -86,7 +86,7 @@ const InstitutionDashboard = () => {
 
             <Card className="shadow-soft">
               <CardHeader>
-                <div className="flex items-center justify-between text-[#281f56]">
+                <div className="flex items-center justify-between">
                   <CardDescription>Este Mês</CardDescription>
                   <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-green-600" />
@@ -108,7 +108,7 @@ const InstitutionDashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardDescription>Total de Doadores</CardDescription>
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-[#00ea7c]">
                     <Users className="w-5 h-5 text-purple-600" />
                   </div>
                 </div>
@@ -197,7 +197,7 @@ const InstitutionDashboard = () => {
                         </div>
                         <div>
                           <p className="font-medium">{donation.donor}</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground bg-[#00ea7c]">
                             {new Date(donation.date).toLocaleDateString("pt-BR")}
                           </p>
                         </div>
