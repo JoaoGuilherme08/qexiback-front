@@ -50,9 +50,7 @@ export const Navbar = ({
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to={userType ? "/home" : "/"} className="flex items-center gap-2 group">
-            <div className="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-              <Wallet className="#00EA7C" />
-            </div>
+            
             <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] bg-clip-text text-[#00ea7c]">
               Qexiback
             </span>
@@ -61,7 +59,7 @@ export const Navbar = ({
           {/* Desktop Navigation */}
           {userType && <div className="hidden md:flex items-center gap-1">
               {links.map(link => <Link key={link.path} to={link.path}>
-                  <Button variant={isActive(link.path) ? "default" : "ghost"} size="sm" className="gap-2">
+                  <Button variant={isActive(link.path) ? "default" : "ghost"} size="sm" className="gap-2 bg-[#f4efea] text-[#281f56]">
                     <link.icon className="w-4 h-4" />
                     {link.label}
                   </Button>
@@ -81,7 +79,7 @@ export const Navbar = ({
                     Cadastrar
                   </Button>
                 </Link>
-              </> : <Button variant="outline" size="sm" onClick={onLogout} className="gap-2">
+              </> : <Button variant="outline" size="sm" onClick={onLogout} className="gap-2 bg-[#00ea7c] text-[#281f56]">
                 <LogOut className="w-4 h-4" />
                 Sair
               </Button>}
