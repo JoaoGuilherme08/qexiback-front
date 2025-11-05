@@ -39,7 +39,7 @@ const Index = () => {
     label: "Instituições"
   }];
   return <div className="min-h-screen flex flex-col">
-      <Navbar className="bg-[#281f56]" />
+      <Navbar />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
