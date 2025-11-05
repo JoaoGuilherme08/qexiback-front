@@ -203,7 +203,7 @@ const InstitutionDashboard = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-lg text-green-600">
+                        <p className="font-semibold text-lg text-[#00ea7c]">
                           R$ {donation.amount.toFixed(2)}
                         </p>
                         <Badge variant="secondary" className="text-xs">
