@@ -10,31 +10,55 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, Search, Package } from "lucide-react";
 import { toast } from "sonner";
-
 const StoreProducts = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productCashback, setProductCashback] = useState("");
   const platformPercentage = 5; // Porcentagem da plataforma (será parametrizável no admin)
-  
-  const [products, setProducts] = useState([
-    { id: 1, name: "Café Premium", price: 45.90, cashback: 15, category: "Bebidas", active: true, code: "CAFE001" },
-    { id: 2, name: "Combo Breakfast", price: 32.50, cashback: 15, category: "Combos", active: true, code: "COMBO001" },
-    { id: 3, name: "Cappuccino", price: 18.00, cashback: 15, category: "Bebidas", active: true, code: "CAP001" },
-    { id: 4, name: "Croissant", price: 12.00, cashback: 10, category: "Doces", active: false, code: "CROIS001" },
-  ]);
+
+  const [products, setProducts] = useState([{
+    id: 1,
+    name: "Café Premium",
+    price: 45.90,
+    cashback: 15,
+    category: "Bebidas",
+    active: true,
+    code: "CAFE001"
+  }, {
+    id: 2,
+    name: "Combo Breakfast",
+    price: 32.50,
+    cashback: 15,
+    category: "Combos",
+    active: true,
+    code: "COMBO001"
+  }, {
+    id: 3,
+    name: "Cappuccino",
+    price: 18.00,
+    cashback: 15,
+    category: "Bebidas",
+    active: true,
+    code: "CAP001"
+  }, {
+    id: 4,
+    name: "Croissant",
+    price: 12.00,
+    cashback: 10,
+    category: "Doces",
+    active: false,
+    code: "CROIS001"
+  }]);
 
   // Calcula valores do cashback
   const calculateCashbackValues = () => {
     const price = parseFloat(productPrice) || 0;
     const cashback = parseFloat(productCashback) || 0;
-    
-    const cashbackAmount = (price * cashback) / 100;
-    const platformAmount = (price * platformPercentage) / 100;
+    const cashbackAmount = price * cashback / 100;
+    const platformAmount = price * platformPercentage / 100;
     const clientAmount = cashbackAmount - platformAmount;
     const finalPrice = price + cashbackAmount;
-    
     return {
       cashbackAmount,
       platformAmount,
@@ -43,25 +67,17 @@ const StoreProducts = () => {
       isValid: price > 0 && cashback > 0
     };
   };
-
   const cashbackValues = calculateCashbackValues();
-
   const handleLogout = () => {
     localStorage.removeItem("userType");
     navigate("/");
   };
-
   const handleDeleteProduct = (id: number) => {
     setProducts(products.filter(p => p.id !== id));
     toast.success("Produto removido com sucesso!");
   };
-
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  return <div className="min-h-screen flex flex-col">
       <Navbar userType="store" onLogout={handleLogout} />
 
       <main className="flex-1 py-8">
@@ -103,30 +119,16 @@ const StoreProducts = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="price">Preço (R$)</Label>
-                      <Input 
-                        id="price" 
-                        type="number" 
-                        step="0.01" 
-                        placeholder="0,00"
-                        value={productPrice}
-                        onChange={(e) => setProductPrice(e.target.value)}
-                      />
+                      <Input id="price" type="number" step="0.01" placeholder="0,00" value={productPrice} onChange={e => setProductPrice(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="cashback">Cashback (%)</Label>
-                      <Input 
-                        id="cashback" 
-                        type="number" 
-                        placeholder="15"
-                        value={productCashback}
-                        onChange={(e) => setProductCashback(e.target.value)}
-                      />
+                      <Input id="cashback" type="number" placeholder="15" value={productCashback} onChange={e => setProductCashback(e.target.value)} />
                     </div>
                   </div>
                   
                   {/* Cálculo do valor final */}
-                  {cashbackValues.isValid && (
-                    <div className="p-4 bg-muted rounded-lg space-y-3">
+                  {cashbackValues.isValid && <div className="p-4 bg-muted rounded-lg space-y-3">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Valor do Produto:</span>
                         <span className="font-medium">R$ {parseFloat(productPrice).toFixed(2)}</span>
@@ -151,8 +153,7 @@ const StoreProducts = () => {
                           <span className="font-bold text-lg text-primary">R$ {cashbackValues.finalPrice.toFixed(2)}</span>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    </div>}
                   <div className="space-y-2">
                     <Label htmlFor="category">Categoria</Label>
                     <Input id="category" placeholder="Ex: Bebidas" />
@@ -177,12 +178,7 @@ const StoreProducts = () => {
             <CardContent className="pt-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar produtos..."
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <Input placeholder="Buscar produtos..." className="pl-10" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
               </div>
             </CardContent>
           </Card>
@@ -197,19 +193,12 @@ const StoreProducts = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {filteredProducts.length === 0 ? (
-                  <div className="text-center py-12">
+                {filteredProducts.length === 0 ? <div className="text-center py-12">
                     <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">Nenhum produto encontrado</p>
-                  </div>
-                ) : (
-                  filteredProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                    >
+                  </div> : filteredProducts.map(product => <div key={product.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
                       <div className="flex items-center gap-4 flex-1">
-                        <div className="w-12 h-12 gradient-secondary rounded-lg flex items-center justify-center">
+                        <div className="w-12 h-12 gradient-secondary rounded-lg flex items-center justify-center bg-[#00ea7c]">
                           <Package className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1">
@@ -239,18 +228,12 @@ const StoreProducts = () => {
                           <Button variant="outline" size="icon">
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleDeleteProduct(product.id)}
-                          >
+                          <Button variant="outline" size="icon" onClick={() => handleDeleteProduct(product.id)}>
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </div>
                       </div>
-                    </div>
-                  ))
-                )}
+                    </div>)}
               </div>
             </CardContent>
           </Card>
@@ -258,8 +241,6 @@ const StoreProducts = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default StoreProducts;
