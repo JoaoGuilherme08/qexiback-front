@@ -5,10 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Heart, TrendingUp, Users, Award, DollarSign } from "lucide-react";
-
 const InstitutionDashboard = () => {
   const navigate = useNavigate();
-
   const handleLogout = () => {
     localStorage.removeItem("userType");
     navigate("/");
@@ -19,24 +17,42 @@ const InstitutionDashboard = () => {
     totalDonations: 45680.50,
     totalDonors: 234,
     monthlyDonations: 8920.00,
-    averageDonation: 195.22,
+    averageDonation: 195.22
   };
-
-  const topDonors = [
-    { name: "João Silva", amount: 850.00, donations: 15 },
-    { name: "Maria Santos", amount: 720.00, donations: 12 },
-    { name: "Pedro Costa", amount: 650.00, donations: 10 },
-    { name: "Ana Oliveira", amount: 520.00, donations: 8 },
-  ];
-
-  const recentDonations = [
-    { id: 1, donor: "João Silva", amount: 50.00, date: "2025-01-10" },
-    { id: 2, donor: "Maria Santos", amount: 100.00, date: "2025-01-09" },
-    { id: 3, donor: "Pedro Costa", amount: 75.00, date: "2025-01-09" },
-  ];
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  const topDonors = [{
+    name: "João Silva",
+    amount: 850.00,
+    donations: 15
+  }, {
+    name: "Maria Santos",
+    amount: 720.00,
+    donations: 12
+  }, {
+    name: "Pedro Costa",
+    amount: 650.00,
+    donations: 10
+  }, {
+    name: "Ana Oliveira",
+    amount: 520.00,
+    donations: 8
+  }];
+  const recentDonations = [{
+    id: 1,
+    donor: "João Silva",
+    amount: 50.00,
+    date: "2025-01-10"
+  }, {
+    id: 2,
+    donor: "Maria Santos",
+    amount: 100.00,
+    date: "2025-01-09"
+  }, {
+    id: 3,
+    donor: "Pedro Costa",
+    amount: 75.00,
+    date: "2025-01-09"
+  }];
+  return <div className="min-h-screen flex flex-col">
       <Navbar userType="institution" onLogout={handleLogout} />
 
       <main className="flex-1 py-8">
@@ -59,7 +75,7 @@ const InstitutionDashboard = () => {
                     <DollarSign className="w-5 h-5 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl">R$ {stats.totalDonations.toFixed(2)}</CardTitle>
+                <CardTitle className="text-3xl text-[#281f56]">R$ {stats.totalDonations.toFixed(2)}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-white/80">
@@ -137,11 +153,7 @@ const InstitutionDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {topDonors.map((donor, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                    >
+                  {topDonors.map((donor, index) => <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="relative">
                           <Avatar>
@@ -149,11 +161,9 @@ const InstitutionDashboard = () => {
                               {donor.name.split(" ").map(n => n[0]).join("")}
                             </AvatarFallback>
                           </Avatar>
-                          {index === 0 && (
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
+                          {index === 0 && <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
                               <span className="text-xs">🏆</span>
-                            </div>
-                          )}
+                            </div>}
                         </div>
                         <div>
                           <p className="font-medium">{donor.name}</p>
@@ -167,8 +177,7 @@ const InstitutionDashboard = () => {
                           R$ {donor.amount.toFixed(2)}
                         </p>
                       </div>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
               </CardContent>
             </Card>
@@ -181,11 +190,7 @@ const InstitutionDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {recentDonations.map((donation) => (
-                    <div
-                      key={donation.id}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                    >
+                  {recentDonations.map(donation => <div key={donation.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 gradient-secondary rounded-full flex items-center justify-center">
                           <Heart className="w-6 h-6 text-white" />
@@ -205,8 +210,7 @@ const InstitutionDashboard = () => {
                           Cashback
                         </Badge>
                       </div>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
               </CardContent>
             </Card>
@@ -215,8 +219,6 @@ const InstitutionDashboard = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default InstitutionDashboard;
