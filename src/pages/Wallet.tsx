@@ -15,13 +15,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Wallet as WalletIcon, TrendingUp, Heart, ArrowUpRight, ArrowDownRight, Clock, CheckCircle, XCircle } from "lucide-react";
 const Wallet = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [donationDialogOpen, setDonationDialogOpen] = useState(false);
   const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
   const [donationPercentage, setDonationPercentage] = useState([50]);
   const [selectedInstitution, setSelectedInstitution] = useState("");
   const [pixKey, setPixKey] = useState("");
-
   const handleLogout = () => {
     localStorage.removeItem("userType");
     navigate("/");
@@ -33,37 +34,29 @@ const Wallet = () => {
     available: 320.00,
     pending: 130.00
   };
-
-  const institutions = [
-    {
-      id: "1",
-      name: "Casa do Idoso",
-      logo: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=100&h=100&fit=crop"
-    },
-    {
-      id: "2",
-      name: "Lar dos Animais",
-      logo: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=100&h=100&fit=crop"
-    },
-    {
-      id: "3",
-      name: "Creche Esperança",
-      logo: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=100&h=100&fit=crop"
-    },
-    {
-      id: "4",
-      name: "Instituto Educação",
-      logo: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=100&h=100&fit=crop"
-    }
-  ];
-
-  const donationAmount = (balance.available * donationPercentage[0]) / 100;
+  const institutions = [{
+    id: "1",
+    name: "Casa do Idoso",
+    logo: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=100&h=100&fit=crop"
+  }, {
+    id: "2",
+    name: "Lar dos Animais",
+    logo: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=100&h=100&fit=crop"
+  }, {
+    id: "3",
+    name: "Creche Esperança",
+    logo: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=100&h=100&fit=crop"
+  }, {
+    id: "4",
+    name: "Instituto Educação",
+    logo: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=100&h=100&fit=crop"
+  }];
+  const donationAmount = balance.available * donationPercentage[0] / 100;
 
   // Check if user has made at least one donation
   const hasMadeDonation = () => {
     return transactions.some(t => t.type === "donation");
   };
-
   const handleWithdrawalClick = () => {
     if (balance.available < 50) {
       toast({
@@ -73,7 +66,6 @@ const Wallet = () => {
       });
       return;
     }
-    
     if (!hasMadeDonation()) {
       toast({
         title: "Doação necessária",
@@ -82,10 +74,8 @@ const Wallet = () => {
       });
       return;
     }
-
     setWithdrawalDialogOpen(true);
   };
-
   const handleWithdrawalConfirm = () => {
     if (!pixKey.trim()) {
       toast({
@@ -99,12 +89,11 @@ const Wallet = () => {
     // TODO: Implement withdrawal logic
     toast({
       title: "Saque solicitado",
-      description: `Solicitação de saque enviada para a chave PIX: ${pixKey}`,
+      description: `Solicitação de saque enviada para a chave PIX: ${pixKey}`
     });
     setWithdrawalDialogOpen(false);
     setPixKey("");
   };
-
   const transactions = [{
     id: 1,
     type: "cashback",
@@ -191,10 +180,7 @@ const Wallet = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button variant="hero-light" className="w-full bg-[#00ea7c] text-base text-[#f4efea]">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Sacar Saldo
-                </Button>
+                
               </CardContent>
             </Card>
 
@@ -254,11 +240,7 @@ const Wallet = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <Button 
-                  variant="secondary" 
-                  className="w-full"
-                  onClick={() => setDonationDialogOpen(true)}
-                >
+                <Button variant="secondary" className="w-full" onClick={() => setDonationDialogOpen(true)}>
                   Ver Instituições
                 </Button>
               </CardContent>
@@ -279,11 +261,7 @@ const Wallet = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <Button 
-                  variant="default" 
-                  className="w-full"
-                  onClick={handleWithdrawalClick}
-                >
+                <Button variant="default" className="w-full" onClick={handleWithdrawalClick}>
                   Solicitar Saque
                 </Button>
               </CardContent>
@@ -315,13 +293,7 @@ const Wallet = () => {
                 <span className="text-sm font-medium">Porcentagem da doação</span>
                 <span className="text-2xl font-bold text-primary">{donationPercentage[0]}%</span>
               </div>
-              <Slider
-                value={donationPercentage}
-                onValueChange={setDonationPercentage}
-                max={100}
-                step={5}
-                className="w-full"
-              />
+              <Slider value={donationPercentage} onValueChange={setDonationPercentage} max={100} step={5} className="w-full" />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>0%</span>
                 <span>50%</span>
@@ -336,18 +308,12 @@ const Wallet = () => {
                   <SelectValue placeholder="Escolha uma instituição" />
                 </SelectTrigger>
                 <SelectContent className="bg-background">
-                  {institutions.map((institution) => (
-                    <SelectItem key={institution.id} value={institution.id}>
+                  {institutions.map(institution => <SelectItem key={institution.id} value={institution.id}>
                       <div className="flex items-center gap-3">
-                        <img 
-                          src={institution.logo} 
-                          alt={institution.name}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
+                        <img src={institution.logo} alt={institution.name} className="w-8 h-8 rounded-full object-cover" />
                         <span>{institution.name}</span>
                       </div>
-                    </SelectItem>
-                  ))}
+                    </SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -367,14 +333,10 @@ const Wallet = () => {
               </div>
             </div>
 
-            <Button 
-              className="w-full" 
-              disabled={!selectedInstitution}
-              onClick={() => {
-                // TODO: Implement donation logic
-                setDonationDialogOpen(false);
-              }}
-            >
+            <Button className="w-full" disabled={!selectedInstitution} onClick={() => {
+            // TODO: Implement donation logic
+            setDonationDialogOpen(false);
+          }}>
               Confirmar Doação
             </Button>
           </div>
@@ -400,12 +362,7 @@ const Wallet = () => {
 
             <div className="space-y-2">
               <Label htmlFor="pixKey">Chave PIX</Label>
-              <Input
-                id="pixKey"
-                placeholder="Digite sua chave PIX (CPF, e-mail, telefone ou chave aleatória)"
-                value={pixKey}
-                onChange={(e) => setPixKey(e.target.value)}
-              />
+              <Input id="pixKey" placeholder="Digite sua chave PIX (CPF, e-mail, telefone ou chave aleatória)" value={pixKey} onChange={e => setPixKey(e.target.value)} />
               <p className="text-xs text-muted-foreground">
                 O valor será transferido para esta chave PIX
               </p>
@@ -421,11 +378,7 @@ const Wallet = () => {
               </ul>
             </div>
 
-            <Button 
-              className="w-full"
-              onClick={handleWithdrawalConfirm}
-              disabled={!pixKey.trim()}
-            >
+            <Button className="w-full" onClick={handleWithdrawalConfirm} disabled={!pixKey.trim()}>
               Confirmar Saque de R$ {balance.available.toFixed(2)}
             </Button>
           </div>
