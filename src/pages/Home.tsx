@@ -85,18 +85,7 @@ const Home = () => {
         </section>
 
         {/* Filters */}
-        <section className="py-6 border-b border-border">
-          <div className="container mx-auto px-4">
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              <Button variant="default" size="sm" className="bg-[#281f56]">Todos</Button>
-              <Button variant="outline" size="sm">Alimentação</Button>
-              <Button variant="outline" size="sm">Tecnologia</Button>
-              <Button variant="outline" size="sm">Moda</Button>
-              <Button variant="outline" size="sm">Saúde</Button>
-              <Button variant="outline" size="sm">Educação</Button>
-            </div>
-          </div>
-        </section>
+        
 
         {/* Offers Grid */}
         <section className="py-12">
@@ -152,20 +141,7 @@ const Home = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-muted">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4">
-              Comece a Ganhar Cashback Hoje
-            </h2>
-            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Aproveite as ofertas, acumule saldo e doe para causas sociais. 
-              Seu consumo pode fazer a diferença!
-            </p>
-            <Button variant="hero" size="lg">
-              Ver Minha Carteira
-            </Button>
-          </div>
-        </section>
+        
       </main>
 
       <Footer />
