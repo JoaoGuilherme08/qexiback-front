@@ -9,12 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import { Wallet as WalletIcon, TrendingUp, Heart, ArrowUpRight, ArrowDownRight, Clock, CheckCircle, XCircle } from "lucide-react";
 const Wallet = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [donationDialogOpen, setDonationDialogOpen] = useState(false);
+  const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
   const [donationPercentage, setDonationPercentage] = useState([50]);
   const [selectedInstitution, setSelectedInstitution] = useState("");
+  const [pixKey, setPixKey] = useState("");
 
   const handleLogout = () => {
     localStorage.removeItem("userType");
@@ -52,6 +58,53 @@ const Wallet = () => {
   ];
 
   const donationAmount = (balance.available * donationPercentage[0]) / 100;
+
+  // Check if user has made at least one donation
+  const hasMadeDonation = () => {
+    return transactions.some(t => t.type === "donation");
+  };
+
+  const handleWithdrawalClick = () => {
+    if (balance.available < 50) {
+      toast({
+        title: "Saldo insuficiente",
+        description: "Você precisa ter pelo menos R$ 50,00 disponível para sacar.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!hasMadeDonation()) {
+      toast({
+        title: "Doação necessária",
+        description: "Você precisa fazer pelo menos uma doação antes de sacar.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setWithdrawalDialogOpen(true);
+  };
+
+  const handleWithdrawalConfirm = () => {
+    if (!pixKey.trim()) {
+      toast({
+        title: "Chave PIX necessária",
+        description: "Por favor, informe sua chave PIX.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // TODO: Implement withdrawal logic
+    toast({
+      title: "Saque solicitado",
+      description: `Solicitação de saque enviada para a chave PIX: ${pixKey}`,
+    });
+    setWithdrawalDialogOpen(false);
+    setPixKey("");
+  };
+
   const transactions = [{
     id: 1,
     type: "cashback",
@@ -226,7 +279,11 @@ const Wallet = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <Button variant="default" className="w-full">
+                <Button 
+                  variant="default" 
+                  className="w-full"
+                  onClick={handleWithdrawalClick}
+                >
                   Solicitar Saque
                 </Button>
               </CardContent>
@@ -319,6 +376,57 @@ const Wallet = () => {
               }}
             >
               Confirmar Doação
+            </Button>
+          </div>
+          </DialogContent>
+      </Dialog>
+
+      <Dialog open={withdrawalDialogOpen} onOpenChange={setWithdrawalDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Sacar Saldo</DialogTitle>
+            <DialogDescription>
+              Transfira seu saldo disponível para sua conta via PIX
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            <div className="bg-secondary/20 rounded-lg p-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Saldo disponível:</span>
+                <span className="font-bold text-lg">R$ {balance.available.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pixKey">Chave PIX</Label>
+              <Input
+                id="pixKey"
+                placeholder="Digite sua chave PIX (CPF, e-mail, telefone ou chave aleatória)"
+                value={pixKey}
+                onChange={(e) => setPixKey(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                O valor será transferido para esta chave PIX
+              </p>
+            </div>
+
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>Requisitos para saque:</strong>
+              </p>
+              <ul className="text-xs text-yellow-700 dark:text-yellow-300 mt-2 space-y-1 list-disc list-inside">
+                <li>Saldo mínimo de R$ 50,00 ✓</li>
+                <li>Ter realizado pelo menos uma doação {hasMadeDonation() ? '✓' : '✗'}</li>
+              </ul>
+            </div>
+
+            <Button 
+              className="w-full"
+              onClick={handleWithdrawalConfirm}
+              disabled={!pixKey.trim()}
+            >
+              Confirmar Saque de R$ {balance.available.toFixed(2)}
             </Button>
           </div>
         </DialogContent>
