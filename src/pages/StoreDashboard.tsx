@@ -60,8 +60,8 @@ const StoreDashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardDescription>Vendas Totais</CardDescription>
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <ShoppingBag className="w-5 h-5 text-blue-600" />
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#00ea7c]">
+                    <ShoppingBag className="w-6 h-6 text-white" />
                   </div>
                 </div>
                 <CardTitle className="text-3xl">{stats.totalSales}</CardTitle>
@@ -75,8 +75,8 @@ const StoreDashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardDescription>Clientes Ativos</CardDescription>
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Users className="w-5 h-5 text-purple-600" />
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#00ea7c]">
+                    <Users className="w-6 h-6 text-white" />
                   </div>
                 </div>
                 <CardTitle className="text-3xl">{stats.activeCustomers}</CardTitle>
@@ -89,9 +89,9 @@ const StoreDashboard = () => {
             <Card className="shadow-soft gradient-primary text-white">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardDescription className="text-white/80">Cashback Distribuído</CardDescription>
-                  <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                    <Wallet className="w-5 h-5 text-white" />
+                  <CardDescription className="text-[#281f56]">Cashback Distribuído</CardDescription>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#00ea7c]">
+                    <Wallet className="w-6 h-6 text-white" />
                   </div>
                 </div>
                 <CardTitle className="text-3xl text-[#281f56]">R$ {stats.totalCashback.toFixed(2)}</CardTitle>
@@ -107,7 +107,7 @@ const StoreDashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardDescription>Produtos Ativos</CardDescription>
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#00ea7c]">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#00ea7c]">
                     <Package className="w-6 h-6 text-white" />
                   </div>
                 </div>
