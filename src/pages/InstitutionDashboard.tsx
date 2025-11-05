@@ -85,7 +85,7 @@ const InstitutionDashboard = () => {
             </Card>
 
             <Card className="shadow-soft">
-              <CardHeader>
+              <CardHeader className="bg-transparent">
                 <div className="flex items-center justify-between text-[#281f56]">
                   <CardDescription>Este Mês</CardDescription>
                   <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -108,7 +108,7 @@ const InstitutionDashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardDescription>Total de Doadores</CardDescription>
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-[#00ea7c]">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                     <Users className="w-5 h-5 text-purple-600" />
                   </div>
                 </div>
@@ -197,7 +197,7 @@ const InstitutionDashboard = () => {
                         </div>
                         <div>
                           <p className="font-medium">{donation.donor}</p>
-                          <p className="text-sm text-muted-foreground bg-[#00ea7c]">
+                          <p className="text-sm text-muted-foreground">
                             {new Date(donation.date).toLocaleDateString("pt-BR")}
                           </p>
                         </div>
