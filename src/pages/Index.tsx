@@ -44,7 +44,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-secondary" />
-        <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
+        <div className="container mx-auto px-4 py-20 md:py-32 relative z-10 bg-[#281f56]">
           <div className="max-w-3xl mx-auto text-center text-white">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-in fade-in slide-in-from-bottom duration-700">
               Cashback que{" "}
@@ -58,7 +58,7 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in slide-in-from-bottom duration-700 delay-300">
               <Link to="/register">
-                <Button size="lg" variant="hero-light" className="w-full sm:w-auto">
+                <Button size="lg" variant="hero-light" className="w-full sm:w-auto bg-[#00ea7c] text-[#281f56]">
                   Começar Agora
                 </Button>
               </Link>

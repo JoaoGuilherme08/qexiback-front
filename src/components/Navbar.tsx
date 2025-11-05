@@ -60,25 +60,19 @@ export const Navbar = ({
 
           {/* Desktop Navigation */}
           {userType && <div className="hidden md:flex items-center gap-1">
-              {links.map(link => (
-                <Link key={link.path} to={link.path}>
-                  <Button 
-                    variant={isActive(link.path) ? "default" : "ghost"} 
-                    size="sm"
-                    className="gap-2"
-                  >
+              {links.map(link => <Link key={link.path} to={link.path}>
+                  <Button variant={isActive(link.path) ? "default" : "ghost"} size="sm" className="gap-2">
                     <link.icon className="w-4 h-4" />
                     {link.label}
                   </Button>
-                </Link>
-              ))}
+                </Link>)}
             </div>}
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             {!userType ? <>
                 <Link to="/login">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="bg-[#f4efea]">
                     Entrar
                   </Button>
                 </Link>
