@@ -81,7 +81,7 @@ const StoreDashboard = () => {
                 </div>
                 <CardTitle className="text-3xl">{stats.activeCustomers}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="bg-transparent">
                 
               </CardContent>
             </Card>
@@ -94,7 +94,7 @@ const StoreDashboard = () => {
                     <Wallet className="w-5 h-5 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl">R$ {stats.totalCashback.toFixed(2)}</CardTitle>
+                <CardTitle className="text-3xl text-[#281f56]">R$ {stats.totalCashback.toFixed(2)}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-white/80">
@@ -107,8 +107,8 @@ const StoreDashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardDescription>Produtos Ativos</CardDescription>
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Package className="w-5 h-5 text-green-600" />
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#00ea7c]">
+                    <Package className="w-6 h-6 text-white" />
                   </div>
                 </div>
                 <CardTitle className="text-3xl">{stats.activeProducts}</CardTitle>
