@@ -221,7 +221,7 @@ const Home = () => {
               {/* QR Code */}
               <div className="flex flex-col items-center gap-4 p-4 bg-white rounded-lg border">
                 <QRCodeSVG value={pixCode} size={200} />
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => copyToClipboard(pixCode, "Código Pix")}>
+                <Button variant="outline" size="sm" className="gap-2 bg-[#00EA7C] text-[#F4EFEA] hover:bg-[#281F56] border-none" onClick={() => copyToClipboard(pixCode, "Código Pix")}>
                   <Copy className="w-4 h-4" />
                   Copiar Código Pix
                 </Button>
