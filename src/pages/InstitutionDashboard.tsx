@@ -97,7 +97,7 @@ const InstitutionDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-green-600 flex items-center gap-1">
+                <p className="text-sm flex items-center gap-1 text-[#00ea7c]">
                   <TrendingUp className="w-4 h-4" />
                   +18% vs mês anterior
                 </p>
