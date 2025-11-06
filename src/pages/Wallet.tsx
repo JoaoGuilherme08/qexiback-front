@@ -174,7 +174,7 @@ const Wallet = () => {
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             <Card className="gradient-primary text-white shadow-medium">
               <CardHeader>
-                <CardDescription className="text-white/80">Saldo Total</CardDescription>
+                <CardDescription className="text-[#281f56]">Saldo Total</CardDescription>
                 <CardTitle className="text-4xl font-bold text-[#281f56]">
                   R$ {balance.total.toFixed(2)}
                 </CardTitle>
