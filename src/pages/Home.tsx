@@ -213,7 +213,7 @@ const Home = () => {
                   <span className="font-bold">R$ {productPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-green-600">
-                  <span>Cashback ({selectedOffer.cashback}%):</span>
+                  <span className="text-[#00ea7c]">Cashback ({selectedOffer.cashback}%):</span>
                   <span className="font-bold">R$ {cashbackAmount.toFixed(2)}</span>
                 </div>
               </div>
