@@ -80,19 +80,16 @@ const StoreProducts = () => {
     localStorage.removeItem("userType");
     navigate("/");
   };
-
   const handleEditClick = (product: typeof products[0]) => {
     setEditingProduct(product);
     setProductPrice(product.price.toString());
     setProductCashback(product.cashback.toString());
     setEditDialogOpen(true);
   };
-
   const handleDeleteClick = (id: number) => {
     setDeletingProductId(id);
     setDeleteDialogOpen(true);
   };
-
   const confirmDelete = () => {
     if (deletingProductId) {
       setProducts(products.filter(p => p.id !== deletingProductId));
@@ -101,7 +98,6 @@ const StoreProducts = () => {
       setDeletingProductId(null);
     }
   };
-
   const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
   return <div className="min-h-screen flex flex-col">
       <Navbar userType="store" onLogout={handleLogout} />
@@ -188,17 +184,10 @@ const StoreProducts = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="productImage">Imagem do Produto</Label>
-                    <Input 
-                      id="productImage" 
-                      type="file" 
-                      accept="image/*"
-                      onChange={(e) => setProductImage(e.target.files?.[0] || null)}
-                    />
-                    {productImage && (
-                      <p className="text-xs text-muted-foreground">
+                    <Input id="productImage" type="file" accept="image/*" onChange={e => setProductImage(e.target.files?.[0] || null)} />
+                    {productImage && <p className="text-xs text-muted-foreground">
                         Arquivo selecionado: {productImage.name}
-                      </p>
-                    )}
+                      </p>}
                   </div>
 
                   <div className="space-y-2">
@@ -206,21 +195,11 @@ const StoreProducts = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="startDate" className="text-xs text-muted-foreground">Data Início</Label>
-                        <Input 
-                          id="startDate" 
-                          type="date" 
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                        />
+                        <Input id="startDate" type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="endDate" className="text-xs text-muted-foreground">Data Fim</Label>
-                        <Input 
-                          id="endDate" 
-                          type="date" 
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                        />
+                        <Input id="endDate" type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -293,7 +272,7 @@ const StoreProducts = () => {
                           <Button variant="outline" size="icon" onClick={() => handleEditClick(product)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="icon" onClick={() => handleDeleteClick(product.id)}>
+                          <Button variant="outline" size="icon" onClick={() => handleDeleteClick(product.id)} className="bg-red-600 hover:bg-red-500 text-[#f4efea]">
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </div>
@@ -366,17 +345,10 @@ const StoreProducts = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="editProductImage">Imagem do Produto</Label>
-                  <Input 
-                    id="editProductImage" 
-                    type="file" 
-                    accept="image/*"
-                    onChange={(e) => setProductImage(e.target.files?.[0] || null)}
-                  />
-                  {productImage && (
-                    <p className="text-xs text-muted-foreground">
+                  <Input id="editProductImage" type="file" accept="image/*" onChange={e => setProductImage(e.target.files?.[0] || null)} />
+                  {productImage && <p className="text-xs text-muted-foreground">
                       Arquivo selecionado: {productImage.name}
-                    </p>
-                  )}
+                    </p>}
                 </div>
 
                 <div className="space-y-2">
@@ -384,21 +356,11 @@ const StoreProducts = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="editStartDate" className="text-xs text-muted-foreground">Data Início</Label>
-                      <Input 
-                        id="editStartDate" 
-                        type="date" 
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                      />
+                      <Input id="editStartDate" type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="editEndDate" className="text-xs text-muted-foreground">Data Fim</Label>
-                      <Input 
-                        id="editEndDate" 
-                        type="date" 
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                      />
+                      <Input id="editEndDate" type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
                     </div>
                   </div>
                 </div>
@@ -406,9 +368,9 @@ const StoreProducts = () => {
               <DialogFooter>
                 <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancelar</Button>
                 <Button onClick={() => {
-                  toast.success("Produto atualizado!");
-                  setEditDialogOpen(false);
-                }}>
+                toast.success("Produto atualizado!");
+                setEditDialogOpen(false);
+              }}>
                   Salvar Alterações
                 </Button>
               </DialogFooter>
