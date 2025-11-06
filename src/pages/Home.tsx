@@ -169,7 +169,7 @@ const Home = () => {
                         </div>
                         <div className="text-right">
                           <p className="text-sm text-muted-foreground">Cashback</p>
-                          <p className="text-lg font-bold text-green-600">{offer.cashback}%</p>
+                          <p className="text-lg font-bold text-[#00ea7c]">{offer.cashback}%</p>
                         </div>
                       </div>
                     </div>
