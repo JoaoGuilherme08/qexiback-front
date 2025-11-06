@@ -70,15 +70,15 @@ const InstitutionDashboard = () => {
             <Card className="shadow-soft gradient-primary text-white">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardDescription className="text-[#281f56]">Total Arrecadado</CardDescription>
+                  <CardDescription className="text-white/80">Total Arrecadado</CardDescription>
                   <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
                     <DollarSign className="w-5 h-5 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl text-[#281f56]">R$ {stats.totalDonations.toFixed(2)}</CardTitle>
+                <CardTitle className="text-3xl">R$ {stats.totalDonations.toFixed(2)}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-[#281f56]">
+                <p className="text-sm text-white/80">
                   Desde o início
                 </p>
               </CardContent>
@@ -88,16 +88,14 @@ const InstitutionDashboard = () => {
               <CardHeader className="bg-transparent">
                 <div className="flex items-center justify-between text-[#281f56]">
                   <CardDescription>Este Mês</CardDescription>
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#00ea7c]">
-                    <TrendingUp className="w-5 h-5 text-green-600" />
-                  </div>
+                  
                 </div>
-                <CardTitle className="text-3xl text-[#281f56]">
+                <CardTitle className="text-3xl text-green-600">
                   R$ {stats.monthlyDonations.toFixed(2)}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm flex items-center gap-1 text-[#00ea7c]">
+                <p className="text-sm text-green-600 flex items-center gap-1">
                   <TrendingUp className="w-4 h-4" />
                   +18% vs mês anterior
                 </p>
@@ -108,9 +106,7 @@ const InstitutionDashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardDescription>Total de Doadores</CardDescription>
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Users className="w-5 h-5 text-purple-600" />
-                  </div>
+                  
                 </div>
                 <CardTitle className="text-3xl">{stats.totalDonors}</CardTitle>
               </CardHeader>
@@ -125,9 +121,7 @@ const InstitutionDashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardDescription>Doação Média</CardDescription>
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Heart className="w-5 h-5 text-blue-600" />
-                  </div>
+                  
                 </div>
                 <CardTitle className="text-3xl">R$ {stats.averageDonation.toFixed(2)}</CardTitle>
               </CardHeader>
@@ -173,7 +167,7 @@ const InstitutionDashboard = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-lg text-[#00ea7c]">
+                        <p className="font-semibold text-lg text-green-600">
                           R$ {donor.amount.toFixed(2)}
                         </p>
                       </div>
@@ -192,7 +186,7 @@ const InstitutionDashboard = () => {
                 <div className="space-y-3">
                   {recentDonations.map(donation => <div key={donation.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 gradient-secondary rounded-full flex items-center justify-center bg-[#00ea7c]">
+                        <div className="w-12 h-12 gradient-secondary rounded-full flex items-center justify-center">
                           <Heart className="w-6 h-6 text-white" />
                         </div>
                         <div>
