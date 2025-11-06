@@ -272,7 +272,7 @@ const StoreProducts = () => {
                           <Button variant="outline" size="icon" onClick={() => handleEditClick(product)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="icon" onClick={() => handleDeleteClick(product.id)} className="bg-red-600 hover:bg-red-500 text-[#f4efea]">
+                          <Button variant="outline" size="icon" onClick={() => handleDeleteClick(product.id)} className="text-neutral-900 font-light bg-[#f4efea]">
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </div>
