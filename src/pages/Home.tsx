@@ -24,8 +24,10 @@ const Home = () => {
     description: "Café especial e doces artesanais",
     cashback: 15,
     category: "Alimentação",
-    location: "Centro, São Paulo",
+    location: "Rua das Flores, 123 - Centro, São Paulo",
+    price: 45.90,
     image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=400",
+    logo: "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=100",
     icon: Coffee
   }, {
     id: 2,
@@ -33,8 +35,10 @@ const Home = () => {
     description: "Eletrônicos e acessórios",
     cashback: 10,
     category: "Tecnologia",
-    location: "Shopping Center",
+    location: "Shopping Center - Piso 2, Loja 245",
+    price: 299.90,
     image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400",
+    logo: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=100",
     icon: Laptop
   }, {
     id: 3,
@@ -42,8 +46,10 @@ const Home = () => {
     description: "Culinária brasileira autêntica",
     cashback: 12,
     category: "Restaurante",
-    location: "Jardins, São Paulo",
+    location: "Av. Brigadeiro, 456 - Jardins, São Paulo",
+    price: 89.90,
     image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400",
+    logo: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=100",
     icon: Utensils
   }, {
     id: 4,
@@ -51,8 +57,10 @@ const Home = () => {
     description: "Roupas e acessórios de moda",
     cashback: 20,
     category: "Moda",
-    location: "Av. Paulista",
+    location: "Av. Paulista, 1000 - Bela Vista",
+    price: 159.90,
     image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400",
+    logo: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=100",
     icon: ShoppingBag
   }];
   const handleLogout = () => {
@@ -149,16 +157,30 @@ const Home = () => {
                     </div>
                   </div>
                   <CardHeader onClick={() => navigate(`/offers/${offer.id}`)}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg mb-1">{offer.title}</CardTitle>
-                        <CardDescription className="flex items-center gap-1 text-sm">
-                          <MapPin className="w-3 h-3" />
-                          {offer.location}
-                        </CardDescription>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={offer.logo} 
+                          alt={`${offer.title} logo`}
+                          className="w-12 h-12 rounded-lg object-cover"
+                        />
+                        <div className="flex-1">
+                          <CardTitle className="text-lg">{offer.title}</CardTitle>
+                        </div>
                       </div>
-                      <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
-                        <offer.icon className="w-5 h-5 text-primary" />
+                      <CardDescription className="flex items-start gap-1 text-sm">
+                        <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <span>{offer.location}</span>
+                      </CardDescription>
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Valor</p>
+                          <p className="text-lg font-bold">R$ {offer.price.toFixed(2)}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-muted-foreground">Cashback</p>
+                          <p className="text-lg font-bold text-green-600">{offer.cashback}%</p>
+                        </div>
                       </div>
                     </div>
                   </CardHeader>
