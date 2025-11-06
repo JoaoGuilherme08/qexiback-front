@@ -219,12 +219,7 @@ const StoreProducts = () => {
 
           {/* Search */}
           <Card className="shadow-soft mb-6">
-            <CardContent className="pt-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input placeholder="Buscar produtos..." className="pl-10" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-              </div>
-            </CardContent>
+            
           </Card>
 
           {/* Products Table */}
