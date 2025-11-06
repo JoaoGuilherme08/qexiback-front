@@ -15,6 +15,9 @@ const StoreProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productCashback, setProductCashback] = useState("");
+  const [productImage, setProductImage] = useState<File | null>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const platformPercentage = 5; // Porcentagem da plataforma (será parametrizável no admin)
 
   const [products, setProducts] = useState([{
@@ -158,6 +161,48 @@ const StoreProducts = () => {
                   <div className="space-y-2">
                     <Label htmlFor="description">Descrição</Label>
                     <Input id="description" placeholder="Descrição do produto" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="productImage">Imagem do Produto</Label>
+                    <Input 
+                      id="productImage" 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => setProductImage(e.target.files?.[0] || null)}
+                    />
+                    {productImage && (
+                      <p className="text-xs text-muted-foreground">
+                        Arquivo selecionado: {productImage.name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Período da Promoção</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="startDate" className="text-xs text-muted-foreground">Data Início</Label>
+                        <Input 
+                          id="startDate" 
+                          type="date" 
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="endDate" className="text-xs text-muted-foreground">Data Fim</Label>
+                        <Input 
+                          id="endDate" 
+                          type="date" 
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Período de validade para este cashback
+                    </p>
                   </div>
                 </div>
                 <DialogFooter>
