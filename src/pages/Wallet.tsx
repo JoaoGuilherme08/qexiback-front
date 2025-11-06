@@ -249,7 +249,7 @@ const Wallet = () => {
             <Card className="shadow-soft hover:shadow-medium transition-base cursor-pointer border-2 border-primary/20 hover:border-primary">
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 gradient-primary rounded-xl flex items-center justify-center">
+                  <div className="w-14 h-14 gradient-primary rounded-xl flex items-center justify-center bg-[#00ea7c]">
                     <WalletIcon className="w-7 h-7 text-white" />
                   </div>
                   <div>
