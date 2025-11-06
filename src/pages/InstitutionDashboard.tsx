@@ -92,7 +92,7 @@ const InstitutionDashboard = () => {
                     <TrendingUp className="w-5 h-5 text-green-600" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl text-green-600">
+                <CardTitle className="text-3xl text-[#281f56]">
                   R$ {stats.monthlyDonations.toFixed(2)}
                 </CardTitle>
               </CardHeader>
