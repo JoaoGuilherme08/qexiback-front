@@ -109,7 +109,7 @@ const InstitutionDashboard = () => {
                 <div className="flex items-center justify-between">
                   <CardDescription>Total de Doadores</CardDescription>
                   <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Users className="w-6 h-6 text-white" />
+                    <Users className="w-5 h-5 text-purple-600" />
                   </div>
                 </div>
                 <CardTitle className="text-3xl">{stats.totalDonors}</CardTitle>
