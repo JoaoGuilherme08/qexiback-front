@@ -178,10 +178,10 @@ const Home = () => {
                     <p className="text-sm text-muted-foreground">{offer.description}</p>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full bg-[#00ea7c] text-[#281f56]" onClick={e => {
+                    <Button variant="outline" onClick={e => {
                   e.stopPropagation();
                   handlePurchaseClick(offer);
-                }}>
+                }} className="w-full bg-[#00ea7c] text-[#f4efea]">
                       Comprar
                     </Button>
                   </CardFooter>
