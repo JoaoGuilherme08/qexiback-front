@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus, Edit, Trash2, Search, Package } from "lucide-react";
 import { toast } from "sonner";
 const StoreProducts = () => {
@@ -18,6 +19,10 @@ const StoreProducts = () => {
   const [productImage, setProductImage] = useState<File | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<typeof products[0] | null>(null);
+  const [deletingProductId, setDeletingProductId] = useState<number | null>(null);
   const platformPercentage = 5; // Porcentagem da plataforma (será parametrizável no admin)
 
   const [products, setProducts] = useState([{
@@ -75,10 +80,28 @@ const StoreProducts = () => {
     localStorage.removeItem("userType");
     navigate("/");
   };
-  const handleDeleteProduct = (id: number) => {
-    setProducts(products.filter(p => p.id !== id));
-    toast.success("Produto removido com sucesso!");
+
+  const handleEditClick = (product: typeof products[0]) => {
+    setEditingProduct(product);
+    setProductPrice(product.price.toString());
+    setProductCashback(product.cashback.toString());
+    setEditDialogOpen(true);
   };
+
+  const handleDeleteClick = (id: number) => {
+    setDeletingProductId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deletingProductId) {
+      setProducts(products.filter(p => p.id !== deletingProductId));
+      toast.success("Produto removido com sucesso!");
+      setDeleteDialogOpen(false);
+      setDeletingProductId(null);
+    }
+  };
+
   const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
   return <div className="min-h-screen flex flex-col">
       <Navbar userType="store" onLogout={handleLogout} />
@@ -267,10 +290,10 @@ const StoreProducts = () => {
                           </Badge>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="icon">
+                          <Button variant="outline" size="icon" onClick={() => handleEditClick(product)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="outline" size="icon" onClick={() => handleDeleteProduct(product.id)}>
+                          <Button variant="outline" size="icon" onClick={() => handleDeleteClick(product.id)}>
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </div>
@@ -279,6 +302,136 @@ const StoreProducts = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Edit Product Dialog */}
+          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Editar Produto</DialogTitle>
+                <DialogDescription>
+                  Altere os dados do produto
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editProductName">Nome do Produto</Label>
+                  <Input id="editProductName" defaultValue={editingProduct?.name} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editProductCode">Código do Produto</Label>
+                  <Input id="editProductCode" defaultValue={editingProduct?.code} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="editPrice">Preço (R$)</Label>
+                    <Input id="editPrice" type="number" step="0.01" value={productPrice} onChange={e => setProductPrice(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="editCashback">Cashback (%)</Label>
+                    <Input id="editCashback" type="number" value={productCashback} onChange={e => setProductCashback(e.target.value)} />
+                  </div>
+                </div>
+                
+                {cashbackValues.isValid && <div className="p-4 bg-muted rounded-lg space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Valor do Produto:</span>
+                      <span className="font-medium">R$ {parseFloat(productPrice).toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Cashback Total ({productCashback}%):</span>
+                      <span className="font-medium">R$ {cashbackValues.cashbackAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="border-t border-border pt-2 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">• Cliente recebe:</span>
+                        <span className="text-primary font-medium">R$ {cashbackValues.clientAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">• Plataforma ({platformPercentage}%):</span>
+                        <span className="text-muted-foreground">R$ {cashbackValues.platformAmount.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <div className="border-t border-border pt-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold">Valor Final:</span>
+                        <span className="font-bold text-lg text-primary">R$ {cashbackValues.finalPrice.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>}
+                
+                <div className="space-y-2">
+                  <Label htmlFor="editDescription">Descrição</Label>
+                  <Input id="editDescription" defaultValue={editingProduct?.category} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="editProductImage">Imagem do Produto</Label>
+                  <Input 
+                    id="editProductImage" 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => setProductImage(e.target.files?.[0] || null)}
+                  />
+                  {productImage && (
+                    <p className="text-xs text-muted-foreground">
+                      Arquivo selecionado: {productImage.name}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Período da Promoção</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="editStartDate" className="text-xs text-muted-foreground">Data Início</Label>
+                      <Input 
+                        id="editStartDate" 
+                        type="date" 
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="editEndDate" className="text-xs text-muted-foreground">Data Fim</Label>
+                      <Input 
+                        id="editEndDate" 
+                        type="date" 
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancelar</Button>
+                <Button onClick={() => {
+                  toast.success("Produto atualizado!");
+                  setEditDialogOpen(false);
+                }}>
+                  Salvar Alterações
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Delete Confirmation Dialog */}
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação não pode ser desfeita. O produto será permanentemente removido do sistema.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+                  Excluir
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </main>
 
