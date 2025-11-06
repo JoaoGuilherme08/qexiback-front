@@ -18,9 +18,15 @@ const Register = () => {
     // Store specific
     storeName: "",
     cnpj: "",
+    storeLogo: null as File | null,
+    storePix: "",
+    storeAddress: "",
     // Institution specific
     institutionName: "",
     cnpjCpf: "",
+    institutionLogo: null as File | null,
+    institutionPix: "",
+    institutionAddress: "",
     description: ""
   });
   const handleSubmit = (e: React.FormEvent) => {
@@ -53,6 +59,14 @@ const Register = () => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
+    const file = e.target.files?.[0] || null;
+    setFormData({
+      ...formData,
+      [fieldName]: file
     });
   };
   return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted to-background p-4 py-12">
@@ -124,6 +138,19 @@ const Register = () => {
                     <Input id="cnpj" name="cnpj" placeholder="00.000.000/0000-00" value={formData.cnpj} onChange={handleChange} required />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="storeLogo">Logo da loja</Label>
+                    <Input id="storeLogo" name="storeLogo" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'storeLogo')} required />
+                    {formData.storeLogo && <p className="text-sm text-muted-foreground">Arquivo: {formData.storeLogo.name}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="storePix">Chave PIX</Label>
+                    <Input id="storePix" name="storePix" placeholder="CPF, CNPJ, e-mail ou chave aleatória" value={formData.storePix} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="storeAddress">Endereço</Label>
+                    <Input id="storeAddress" name="storeAddress" placeholder="Rua, número, bairro, cidade" value={formData.storeAddress} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="email">E-mail</Label>
                     <Input id="email" name="email" type="email" placeholder="contato@loja.com" value={formData.email} onChange={handleChange} required />
                   </div>
@@ -151,6 +178,19 @@ const Register = () => {
                   <div className="space-y-2">
                     <Label htmlFor="cnpjCpf">CNPJ/CPF</Label>
                     <Input id="cnpjCpf" name="cnpjCpf" placeholder="00.000.000/0000-00" value={formData.cnpjCpf} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="institutionLogo">Logo da instituição</Label>
+                    <Input id="institutionLogo" name="institutionLogo" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'institutionLogo')} required />
+                    {formData.institutionLogo && <p className="text-sm text-muted-foreground">Arquivo: {formData.institutionLogo.name}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="institutionPix">Chave PIX</Label>
+                    <Input id="institutionPix" name="institutionPix" placeholder="CPF, CNPJ, e-mail ou chave aleatória" value={formData.institutionPix} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="institutionAddress">Endereço (opcional)</Label>
+                    <Input id="institutionAddress" name="institutionAddress" placeholder="Rua, número, bairro, cidade" value={formData.institutionAddress} onChange={handleChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">E-mail</Label>
