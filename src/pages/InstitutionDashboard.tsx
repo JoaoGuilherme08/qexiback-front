@@ -70,7 +70,7 @@ const InstitutionDashboard = () => {
             <Card className="shadow-soft gradient-primary text-white">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardDescription className="text-white/80">Total Arrecadado</CardDescription>
+                  <CardDescription className="text-[#281f56]">Total Arrecadado</CardDescription>
                   <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
                     <DollarSign className="w-5 h-5 text-white" />
                   </div>
