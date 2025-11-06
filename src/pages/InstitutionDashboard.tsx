@@ -78,7 +78,7 @@ const InstitutionDashboard = () => {
                 <CardTitle className="text-3xl text-[#281f56]">R$ {stats.totalDonations.toFixed(2)}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-white/80">
+                <p className="text-sm text-[#281f56]">
                   Desde o início
                 </p>
               </CardContent>
