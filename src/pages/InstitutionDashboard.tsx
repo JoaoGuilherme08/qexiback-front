@@ -75,7 +75,7 @@ const InstitutionDashboard = () => {
                     <DollarSign className="w-5 h-5 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl">R$ {stats.totalDonations.toFixed(2)}</CardTitle>
+                <CardTitle className="text-3xl text-[#281f56]">R$ {stats.totalDonations.toFixed(2)}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-white/80">
