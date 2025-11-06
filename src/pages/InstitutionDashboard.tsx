@@ -192,7 +192,7 @@ const InstitutionDashboard = () => {
                 <div className="space-y-3">
                   {recentDonations.map(donation => <div key={donation.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 gradient-secondary rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 gradient-secondary rounded-full flex items-center justify-center bg-[#00ea7c]">
                           <Heart className="w-6 h-6 text-white" />
                         </div>
                         <div>
