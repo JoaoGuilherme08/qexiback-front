@@ -10,10 +10,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X } from "lucide-react";
-
 const Profile = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [isEditing, setIsEditing] = useState(false);
 
   // Estado inicial dos dados do usuário (mock)
@@ -23,42 +24,39 @@ const Profile = () => {
     phone: "(11) 98765-4321",
     address: "São Paulo, SP",
     joinDate: "Janeiro 2024",
-    avatar: "",
+    avatar: ""
   });
 
   // Estado temporário para edição
-  const [editData, setEditData] = useState({ ...userData });
-
+  const [editData, setEditData] = useState({
+    ...userData
+  });
   const handleEdit = () => {
     setIsEditing(true);
-    setEditData({ ...userData });
+    setEditData({
+      ...userData
+    });
   };
-
   const handleCancel = () => {
     setIsEditing(false);
-    setEditData({ ...userData });
+    setEditData({
+      ...userData
+    });
   };
-
   const handleSave = () => {
-    setUserData({ ...editData });
+    setUserData({
+      ...editData
+    });
     setIsEditing(false);
     toast({
       title: "Perfil atualizado",
-      description: "Suas informações foram salvas com sucesso.",
+      description: "Suas informações foram salvas com sucesso."
     });
   };
-
   const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   };
-
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
+  return <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
       <main className="flex-1 container mx-auto px-4 py-8">
@@ -90,13 +88,10 @@ const Profile = () => {
                   <CardTitle>Informações Pessoais</CardTitle>
                   <CardDescription>Gerencie seus dados cadastrais</CardDescription>
                 </div>
-                {!isEditing ? (
-                  <Button onClick={handleEdit} variant="outline" size="sm">
+                {!isEditing ? <Button onClick={handleEdit} variant="outline" size="sm">
                     <Edit2 className="w-4 h-4 mr-2" />
                     Editar
-                  </Button>
-                ) : (
-                  <div className="flex gap-2">
+                  </Button> : <div className="flex gap-2">
                     <Button onClick={handleSave} variant="default" size="sm">
                       <Save className="w-4 h-4 mr-2" />
                       Salvar
@@ -105,8 +100,7 @@ const Profile = () => {
                       <X className="w-4 h-4 mr-2" />
                       Cancelar
                     </Button>
-                  </div>
-                )}
+                  </div>}
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -116,15 +110,10 @@ const Profile = () => {
                   <User className="w-4 h-4" />
                   Nome Completo
                 </Label>
-                {isEditing ? (
-                  <Input
-                    id="name"
-                    value={editData.name}
-                    onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-muted-foreground">{userData.name}</p>
-                )}
+                {isEditing ? <Input id="name" value={editData.name} onChange={e => setEditData({
+                ...editData,
+                name: e.target.value
+              })} /> : <p className="text-muted-foreground">{userData.name}</p>}
               </div>
 
               <Separator />
@@ -135,16 +124,10 @@ const Profile = () => {
                   <Mail className="w-4 h-4" />
                   E-mail
                 </Label>
-                {isEditing ? (
-                  <Input
-                    id="email"
-                    type="email"
-                    value={editData.email}
-                    onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-muted-foreground">{userData.email}</p>
-                )}
+                {isEditing ? <Input id="email" type="email" value={editData.email} onChange={e => setEditData({
+                ...editData,
+                email: e.target.value
+              })} /> : <p className="text-muted-foreground">{userData.email}</p>}
               </div>
 
               <Separator />
@@ -155,15 +138,10 @@ const Profile = () => {
                   <Phone className="w-4 h-4" />
                   Telefone
                 </Label>
-                {isEditing ? (
-                  <Input
-                    id="phone"
-                    value={editData.phone}
-                    onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-muted-foreground">{userData.phone}</p>
-                )}
+                {isEditing ? <Input id="phone" value={editData.phone} onChange={e => setEditData({
+                ...editData,
+                phone: e.target.value
+              })} /> : <p className="text-muted-foreground">{userData.phone}</p>}
               </div>
 
               <Separator />
@@ -174,43 +152,20 @@ const Profile = () => {
                   <MapPin className="w-4 h-4" />
                   Localização
                 </Label>
-                {isEditing ? (
-                  <Input
-                    id="address"
-                    value={editData.address}
-                    onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-muted-foreground">{userData.address}</p>
-                )}
+                {isEditing ? <Input id="address" value={editData.address} onChange={e => setEditData({
+                ...editData,
+                address: e.target.value
+              })} /> : <p className="text-muted-foreground">{userData.address}</p>}
               </div>
             </CardContent>
           </Card>
 
           {/* Configurações de Conta */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Configurações de Conta</CardTitle>
-              <CardDescription>Gerencie sua segurança e preferências</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start">
-                Alterar Senha
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Configurações de Notificação
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive">
-                Excluir Conta
-              </Button>
-            </CardContent>
-          </Card>
+          
         </div>
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Profile;
