@@ -97,9 +97,7 @@ const StoreDashboard = () => {
                 <CardTitle className="text-3xl text-[#281f56]">R$ {stats.totalCashback.toFixed(2)}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-white/80">
-                  Média de 15% por venda
-                </p>
+                
               </CardContent>
             </Card>
 
