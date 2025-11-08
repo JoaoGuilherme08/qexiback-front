@@ -7,55 +7,92 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Store, TrendingUp, Users, Percent, Edit, Search } from "lucide-react";
+import { Store, TrendingUp, Users, Percent, Search } from "lucide-react";
 import { toast } from "sonner";
 
 interface StoreConfig {
   id: number;
   name: string;
+  fantasyName: string;
   category: string;
-  platformPercentage: number;
+  cnpj: string;
+  responsible: string;
+  contact: string;
+  address: string;
   totalCashback: number;
   status: "active" | "inactive";
 }
+
+const PLATFORM_PERCENTAGE = 3; // Taxa fixa da plataforma
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [stores, setStores] = useState<StoreConfig[]>([
-    { id: 1, name: "Café da Praça", category: "Alimentação", platformPercentage: 5, totalCashback: 1250.50, status: "active" },
-    { id: 2, name: "Restaurante Sabor", category: "Alimentação", platformPercentage: 7, totalCashback: 3420.80, status: "active" },
-    { id: 3, name: "Farmácia Central", category: "Saúde", platformPercentage: 4, totalCashback: 980.30, status: "active" },
-    { id: 4, name: "Pet Shop Amigo", category: "Pet", platformPercentage: 6, totalCashback: 560.00, status: "inactive" },
+    { 
+      id: 1, 
+      name: "Café da Praça", 
+      fantasyName: "Café da Praça Ltda",
+      category: "Alimentação", 
+      cnpj: "12.345.678/0001-90",
+      responsible: "João Silva",
+      contact: "(11) 98765-4321",
+      address: "Rua das Flores, 123 - Centro",
+      totalCashback: 1250.50, 
+      status: "active" 
+    },
+    { 
+      id: 2, 
+      name: "Restaurante Sabor", 
+      fantasyName: "Sabor Gastronomia ME",
+      category: "Alimentação", 
+      cnpj: "23.456.789/0001-01",
+      responsible: "Maria Santos",
+      contact: "(11) 97654-3210",
+      address: "Av. Principal, 456 - Jardim",
+      totalCashback: 3420.80, 
+      status: "active" 
+    },
+    { 
+      id: 3, 
+      name: "Farmácia Central", 
+      fantasyName: "Farmácia Central Ltda",
+      category: "Saúde", 
+      cnpj: "34.567.890/0001-12",
+      responsible: "Pedro Costa",
+      contact: "(11) 96543-2109",
+      address: "Praça da Saúde, 789",
+      totalCashback: 980.30, 
+      status: "active" 
+    },
+    { 
+      id: 4, 
+      name: "Pet Shop Amigo", 
+      fantasyName: "Pet Shop Amigo EIRELI",
+      category: "Pet", 
+      cnpj: "45.678.901/0001-23",
+      responsible: "Ana Lima",
+      contact: "(11) 95432-1098",
+      address: "Rua dos Animais, 321 - Vila Pet",
+      totalCashback: 560.00, 
+      status: "inactive" 
+    },
   ]);
-
-  const [editingStore, setEditingStore] = useState<StoreConfig | null>(null);
-  const [newPercentage, setNewPercentage] = useState("");
 
   const handleLogout = () => {
     localStorage.removeItem("userType");
     navigate("/");
   };
 
-  const handleUpdatePercentage = () => {
-    if (!editingStore) return;
-
-    const percentage = parseFloat(newPercentage);
-    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
-      toast.error("Porcentagem inválida! Digite um valor entre 0 e 100.");
-      return;
-    }
-
-    setStores(stores.map(store => 
-      store.id === editingStore.id 
-        ? { ...store, platformPercentage: percentage }
-        : store
-    ));
-
-    toast.success(`Taxa da plataforma atualizada para ${percentage}%`);
-    setEditingStore(null);
-    setNewPercentage("");
+  const handleToggleStatus = (storeId: number) => {
+    setStores(stores.map(store => {
+      if (store.id === storeId) {
+        const newStatus = store.status === "active" ? "inactive" : "active";
+        toast.success(`Estabelecimento ${newStatus === "active" ? "ativado" : "desativado"} com sucesso!`);
+        return { ...store, status: newStatus };
+      }
+      return store;
+    }));
   };
 
   const filteredStores = stores.filter(store =>
@@ -66,7 +103,6 @@ const AdminDashboard = () => {
   const totalStores = stores.length;
   const activeStores = stores.filter(s => s.status === "active").length;
   const totalCashbackGenerated = stores.reduce((sum, s) => sum + s.totalCashback, 0);
-  const averagePercentage = stores.reduce((sum, s) => sum + s.platformPercentage, 0) / stores.length;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -125,13 +161,13 @@ const AdminDashboard = () => {
 
             <Card className="shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Taxa Média</CardTitle>
+                <CardTitle className="text-sm font-medium">Taxa da Plataforma</CardTitle>
                 <Percent className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{averagePercentage.toFixed(1)}%</div>
+                <div className="text-2xl font-bold">{PLATFORM_PERCENTAGE}%</div>
                 <p className="text-xs text-muted-foreground">
-                  Média da plataforma
+                  Taxa fixa para todos
                 </p>
               </CardContent>
             </Card>
@@ -157,125 +193,72 @@ const AdminDashboard = () => {
             <CardHeader>
               <CardTitle>Estabelecimentos</CardTitle>
               <CardDescription>
-                Configure a taxa da plataforma para cada estabelecimento
+                Gerencie o acesso dos estabelecimentos à plataforma
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {filteredStores.map((store) => (
-                  <div
-                    key={store.id}
-                    className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-                        <Store className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium">{store.name}</p>
-                          <Badge variant={store.status === "active" ? "default" : "secondary"}>
-                            {store.status === "active" ? "Ativa" : "Inativa"}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{store.category}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground mb-1">Taxa da Plataforma</p>
-                        <p className="text-2xl font-bold text-primary">{store.platformPercentage}%</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground mb-1">Cashback Gerado</p>
-                        <p className="text-sm font-semibold">R$ {store.totalCashback.toFixed(2)}</p>
-                      </div>
-                      <Dialog 
-                        open={editingStore?.id === store.id} 
-                        onOpenChange={(open) => {
-                          if (!open) {
-                            setEditingStore(null);
-                            setNewPercentage("");
-                          }
-                        }}
-                      >
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="icon"
-                            onClick={() => {
-                              setEditingStore(store);
-                              setNewPercentage(store.platformPercentage.toString());
-                            }}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Editar Taxa da Plataforma</DialogTitle>
-                            <DialogDescription>
-                              Configure a porcentagem da plataforma para {store.name}
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="percentage">Taxa da Plataforma (%)</Label>
-                              <Input
-                                id="percentage"
-                                type="number"
-                                step="0.1"
-                                min="0"
-                                max="100"
-                                placeholder="Ex: 5"
-                                value={newPercentage}
-                                onChange={(e) => setNewPercentage(e.target.value)}
-                              />
-                              <p className="text-xs text-muted-foreground">
-                                Esta porcentagem será deduzida do cashback total oferecido pela loja
-                              </p>
-                            </div>
-
-                            {newPercentage && !isNaN(parseFloat(newPercentage)) && (
-                              <div className="p-4 bg-muted rounded-lg">
-                                <p className="text-sm font-medium mb-2">Exemplo de cálculo:</p>
-                                <div className="space-y-1 text-sm">
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Cashback total da loja:</span>
-                                    <span className="font-medium">20%</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Taxa da plataforma:</span>
-                                    <span className="font-medium text-primary">{newPercentage}%</span>
-                                  </div>
-                                  <div className="border-t border-border pt-1 mt-1 flex justify-between">
-                                    <span className="text-muted-foreground">Cliente recebe:</span>
-                                    <span className="font-bold text-primary">
-                                      {(20 - parseFloat(newPercentage)).toFixed(1)}%
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
+                  <Card key={store.id} className="shadow-soft">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
+                            <Store className="w-8 h-8 text-white" />
                           </div>
-                          <DialogFooter>
-                            <Button 
-                              variant="outline" 
-                              onClick={() => {
-                                setEditingStore(null);
-                                setNewPercentage("");
-                              }}
-                            >
-                              Cancelar
-                            </Button>
-                            <Button onClick={handleUpdatePercentage}>
-                              Salvar
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold text-lg">{store.name}</h3>
+                              <Badge variant={store.status === "active" ? "default" : "secondary"}>
+                                {store.status === "active" ? "Ativa" : "Inativa"}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{store.category}</p>
+                          </div>
+                        </div>
+                        <Button
+                          variant={store.status === "active" ? "destructive" : "default"}
+                          onClick={() => handleToggleStatus(store.id)}
+                        >
+                          {store.status === "active" ? "Desativar" : "Ativar"}
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Nome Fantasia</p>
+                          <p className="font-medium">{store.fantasyName}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">CNPJ</p>
+                          <p className="font-medium">{store.cnpj}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Responsável</p>
+                          <p className="font-medium">{store.responsible}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Contato</p>
+                          <p className="font-medium">{store.contact}</p>
+                        </div>
+                        <div className="md:col-span-2">
+                          <p className="text-sm text-muted-foreground">Endereço</p>
+                          <p className="font-medium">{store.address}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-border">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Taxa da Plataforma</p>
+                          <p className="text-xl font-bold text-primary">{PLATFORM_PERCENTAGE}%</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-muted-foreground">Cashback Gerado</p>
+                          <p className="text-xl font-bold">R$ {store.totalCashback.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </CardContent>
