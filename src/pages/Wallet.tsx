@@ -293,9 +293,9 @@ const Wallet = () => {
                 <span className="text-sm font-medium">Porcentagem da doação</span>
                 <span className="text-2xl font-bold text-primary">{donationPercentage[0]}%</span>
               </div>
-              <Slider value={donationPercentage} onValueChange={setDonationPercentage} max={100} step={5} className="w-full" />
+              <Slider value={donationPercentage} onValueChange={setDonationPercentage} min={10} max={100} step={5} className="w-full" />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>0%</span>
+                <span>10%</span>
                 <span>50%</span>
                 <span>100%</span>
               </div>
