@@ -23,6 +23,7 @@ const Profile = () => {
     email: "joao.silva@email.com",
     phone: "(11) 98765-4321",
     address: "São Paulo, SP",
+    pix: "",
     joinDate: "Janeiro 2024",
     avatar: ""
   });
@@ -156,6 +157,20 @@ const Profile = () => {
                 ...editData,
                 address: e.target.value
               })} /> : <p className="text-muted-foreground">{userData.address}</p>}
+              </div>
+
+              <Separator />
+
+              {/* PIX */}
+              <div className="space-y-2">
+                <Label htmlFor="pix" className="flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  Chave PIX
+                </Label>
+                {isEditing ? <Input id="pix" value={editData.pix} onChange={e => setEditData({
+                ...editData,
+                pix: e.target.value
+              })} placeholder="CPF, e-mail, telefone ou chave aleatória" /> : <p className="text-muted-foreground">{userData.pix || "Não informado"}</p>}
               </div>
             </CardContent>
           </Card>
