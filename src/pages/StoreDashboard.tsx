@@ -137,19 +137,7 @@ const StoreDashboard = () => {
               </CardHeader>
             </Card>
 
-            <Card className="shadow-soft hover:shadow-medium transition-base cursor-pointer">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center bg-[#00ea7c]">
-                    <Tag className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Cupons</CardTitle>
-                    <CardDescription>Criar promoções</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
+            
 
             <Card className="shadow-soft hover:shadow-medium transition-base cursor-pointer">
               <CardHeader>
