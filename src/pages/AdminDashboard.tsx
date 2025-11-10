@@ -21,9 +21,10 @@ interface StoreConfig {
   address: string;
   totalCashback: number;
   status: "active" | "inactive";
+  platformPercentage: number;
 }
 
-const PLATFORM_PERCENTAGE = 3; // Taxa fixa da plataforma
+
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -39,7 +40,8 @@ const AdminDashboard = () => {
       contact: "(11) 98765-4321",
       address: "Rua das Flores, 123 - Centro",
       totalCashback: 1250.50, 
-      status: "active" 
+      status: "active",
+      platformPercentage: 3
     },
     { 
       id: 2, 
@@ -51,7 +53,8 @@ const AdminDashboard = () => {
       contact: "(11) 97654-3210",
       address: "Av. Principal, 456 - Jardim",
       totalCashback: 3420.80, 
-      status: "active" 
+      status: "active",
+      platformPercentage: 2.5
     },
     { 
       id: 3, 
@@ -63,7 +66,8 @@ const AdminDashboard = () => {
       contact: "(11) 96543-2109",
       address: "Praça da Saúde, 789",
       totalCashback: 980.30, 
-      status: "active" 
+      status: "active",
+      platformPercentage: 3.5
     },
     { 
       id: 4, 
@@ -75,7 +79,8 @@ const AdminDashboard = () => {
       contact: "(11) 95432-1098",
       address: "Rua dos Animais, 321 - Vila Pet",
       totalCashback: 560.00, 
-      status: "inactive" 
+      status: "inactive",
+      platformPercentage: 3
     },
   ]);
 
@@ -95,6 +100,20 @@ const AdminDashboard = () => {
     }));
   };
 
+  const handleUpdatePercentage = (storeId: number, newPercentage: number) => {
+    if (newPercentage < 0 || newPercentage > 100) {
+      toast.error("A taxa deve estar entre 0% e 100%");
+      return;
+    }
+    setStores(stores.map(store => {
+      if (store.id === storeId) {
+        toast.success(`Taxa atualizada para ${newPercentage}%`);
+        return { ...store, platformPercentage: newPercentage };
+      }
+      return store;
+    }));
+  };
+
   const filteredStores = stores.filter(store =>
     store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     store.category.toLowerCase().includes(searchQuery.toLowerCase())
@@ -103,6 +122,9 @@ const AdminDashboard = () => {
   const totalStores = stores.length;
   const activeStores = stores.filter(s => s.status === "active").length;
   const totalCashbackGenerated = stores.reduce((sum, s) => sum + s.totalCashback, 0);
+  const averagePlatformPercentage = stores.length > 0 
+    ? (stores.reduce((sum, s) => sum + s.platformPercentage, 0) / stores.length).toFixed(1)
+    : "0";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -161,13 +183,13 @@ const AdminDashboard = () => {
 
             <Card className="shadow-soft">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Taxa da Plataforma</CardTitle>
+                <CardTitle className="text-sm font-medium">Taxa Média da Plataforma</CardTitle>
                 <Percent className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{PLATFORM_PERCENTAGE}%</div>
+                <div className="text-2xl font-bold">{averagePlatformPercentage}%</div>
                 <p className="text-xs text-muted-foreground">
-                  Taxa fixa para todos
+                  Taxa média dos estabelecimentos
                 </p>
               </CardContent>
             </Card>
@@ -248,9 +270,23 @@ const AdminDashboard = () => {
                       </div>
 
                       <div className="flex items-center justify-between pt-4 border-t border-border">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Taxa da Plataforma</p>
-                          <p className="text-xl font-bold text-primary">{PLATFORM_PERCENTAGE}%</p>
+                        <div className="flex-1">
+                          <Label htmlFor={`percentage-${store.id}`} className="text-sm text-muted-foreground">
+                            Taxa da Plataforma
+                          </Label>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Input
+                              id={`percentage-${store.id}`}
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={store.platformPercentage}
+                              onChange={(e) => handleUpdatePercentage(store.id, parseFloat(e.target.value) || 0)}
+                              className="w-24"
+                            />
+                            <span className="text-xl font-bold text-primary">%</span>
+                          </div>
                         </div>
                         <div className="text-right">
                           <p className="text-sm text-muted-foreground">Cashback Gerado</p>
