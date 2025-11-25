@@ -9,25 +9,26 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
 import { maskCNPJ, sanitizeDocument, isValidCnpjRegex, validateCNPJ } from "@/utils/validators";
+import InputMask from "react-input-mask";
 
 const defaultFormState = {
-  nomeFantasia: "",
+  nomeInstituicao: "",
   cnpj: "",
   email: "",
   telefone: "",
   endereco: "",
   cidade: "",
   estado: "",
-  descricao: ""
+  descricao: "",
+  chavePix: ""
 };
 
-const CreateCompany = () => {
+const CreateInstitution = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cnpjError, setCnpjError] = useState<string | null>(null);
   const [blockedMessage, setBlockedMessage] = useState<string | null>(null);
-  const [empresaId, setEmpresaId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string>("");
   const [formData, setFormData] = useState(defaultFormState);
 
@@ -45,17 +46,15 @@ const CreateCompany = () => {
           throw new Error("Não foi possível carregar os dados do usuário.");
         }
 
-        const { userId, email, telefone, tipoUsuario, empresaId: empresaDoUsuario, instituicaoId } = response.data;
+        const { userId, email, telefone, tipoUsuario, empresaId, instituicaoId } = response.data;
         setCurrentUserId(userId);
-        setEmpresaId(empresaDoUsuario || null);
 
-        // Se usuário já é administrador ou já possui empresa vinculada, bloquear o formulário
-        if (empresaDoUsuario) {
-          setBlockedMessage("Você já possui uma empresa cadastrada. Gerencie-a através do seu perfil.");
-        } else if (instituicaoId) {
-          setBlockedMessage("Seu usuário já possui uma ONG cadastrada. Não é possível ter empresa e ONG ao mesmo tempo.");
+        if (instituicaoId) {
+          setBlockedMessage("Você já possui uma ONG cadastrada. Gerencie-a através do seu perfil.");
+        } else if (empresaId) {
+          setBlockedMessage("Seu usuário já está vinculado a uma empresa. Não é possível ter empresa e ONG ao mesmo tempo.");
         } else if (tipoUsuario === "ADMINISTRADOR_EMPRESA" || tipoUsuario === "EMPRESA" || tipoUsuario === "FUNCIONARIO") {
-          setBlockedMessage("Seu usuário já está vinculado a uma empresa.");
+          setBlockedMessage("Seu usuário está associado a uma empresa. Remova o vínculo para cadastrar uma ONG.");
         } else {
           setFormData(prev => ({
             ...prev,
@@ -77,8 +76,7 @@ const CreateCompany = () => {
 
   const handleChange = (field: keyof typeof formData, value: string) => {
     if (field === "cnpj") {
-      const masked = maskCNPJ(value);
-      setFormData(prev => ({ ...prev, cnpj: masked }));
+      setFormData(prev => ({ ...prev, cnpj: maskCNPJ(value) }));
       setCnpjError(null);
       return;
     }
@@ -92,8 +90,8 @@ const CreateCompany = () => {
   };
 
   const validateForm = () => {
-    if (!formData.nomeFantasia.trim()) {
-      toast.error("Informe o nome fantasia da empresa.");
+    if (!formData.nomeInstituicao.trim()) {
+      toast.error("Informe o nome da instituição.");
       return false;
     }
 
@@ -109,7 +107,7 @@ const CreateCompany = () => {
     }
 
     if (!formData.email.trim()) {
-      toast.error("Informe o e-mail comercial.");
+      toast.error("Informe o e-mail da instituição.");
       return false;
     }
 
@@ -140,40 +138,38 @@ const CreateCompany = () => {
       if (refresh.data) {
         localStorage.setItem("userData", JSON.stringify(refresh.data));
       }
-    } catch (error) {
+    } catch {
       console.warn("Não foi possível atualizar os dados do usuário localmente.");
     }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!validateForm()) return;
-    if (!currentUserId) return;
+    if (!validateForm() || !currentUserId) return;
 
     setIsSubmitting(true);
-
     try {
       const cleanCnpj = sanitizeDocument(formData.cnpj);
-      await apiService.criarEmpresa({
+      await apiService.criarInstituicao({
         userId: currentUserId,
-        nomeFantasia: formData.nomeFantasia.trim(),
-        cnpjEmpresa: cleanCnpj,
-        descricaoEmpresa: formData.descricao,
-        enderecoEmpresa: formData.endereco,
-        cidadeEmpresa: formData.cidade,
-        estadoEmpresa: formData.estado,
+        nomeInstituicao: formData.nomeInstituicao.trim(),
+        cnpjInstituicao: cleanCnpj,
+        descricaoInstituicao: formData.descricao,
+        enderecoInstituicao: formData.endereco,
+        cidadeInstituicao: formData.cidade,
+        estadoInstituicao: formData.estado,
         email: formData.email,
-        telefone: formData.telefone
+        telefone: formData.telefone,
+        chavePix: formData.chavePix
       });
 
       await atualizarCacheUsuario();
-      localStorage.setItem("userType", "store");
-
-      toast.success("Empresa cadastrada com sucesso! Você agora é administrador.");
+      localStorage.setItem("userType", "institution");
+      toast.success("ONG cadastrada com sucesso! Você agora é administradora da instituição.");
       navigate("/profile");
     } catch (error: any) {
-      console.error("Erro ao cadastrar empresa:", error);
-      toast.error(error.message || "Erro ao cadastrar empresa. Tente novamente.");
+      console.error("Erro ao cadastrar instituição:", error);
+      toast.error(error.message || "Erro ao cadastrar instituição. Tente novamente.");
     } finally {
       setIsSubmitting(false);
     }
@@ -210,29 +206,28 @@ const CreateCompany = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-2xl shadow-2xl">
         <CardHeader>
-          <CardTitle>Cadastrar empresa</CardTitle>
+          <CardTitle>Cadastrar ONG</CardTitle>
           <CardDescription>
-            Informe os dados da sua empresa. Assim que o cadastro for concluído você será definido como administrador.
+            Informe os dados da sua instituição. Após o cadastro você será definido como responsável pela ONG.
           </CardDescription>
         </CardHeader>
-
         <CardContent>
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <Label htmlFor="nomeFantasia">Nome fantasia</Label>
+              <Label htmlFor="nomeInstituicao">Nome da instituição</Label>
               <Input
-                id="nomeFantasia"
-                value={formData.nomeFantasia}
-                onChange={e => handleChange("nomeFantasia", e.target.value)}
-                placeholder="Minha Empresa LTDA"
+                id="nomeInstituicao"
+                value={formData.nomeInstituicao}
+                onChange={e => handleChange("nomeInstituicao", e.target.value)}
+                placeholder="Associação Exemplo"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cnpj">CNPJ</Label>
+              <Label htmlFor="cnpjInstituicao">CNPJ</Label>
               <Input
-                id="cnpj"
+                id="cnpjInstituicao"
                 value={formData.cnpj}
                 onChange={e => handleChange("cnpj", e.target.value)}
                 placeholder="00.000.000/0000-00"
@@ -246,31 +241,38 @@ const CreateCompany = () => {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail comercial</Label>
+                <Label htmlFor="emailInstituicao">E-mail</Label>
                 <Input
-                  id="email"
+                  id="emailInstituicao"
                   type="email"
                   value={formData.email}
                   onChange={e => handleChange("email", e.target.value)}
-                  placeholder="contato@empresa.com"
+                  placeholder="contato@instituicao.com"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone</Label>
-                <Input
-                  id="telefone"
+                <Label htmlFor="telefoneInstituicao">Telefone</Label>
+                <InputMask
+                  mask="(99) 99999-9999"
                   value={formData.telefone}
                   onChange={e => handleChange("telefone", e.target.value)}
-                  placeholder="(11) 99999-9999"
-                />
+                >
+                  {(inputProps: any) => (
+                    <Input
+                      {...inputProps}
+                      id="telefoneInstituicao"
+                      placeholder="(11) 99999-9999"
+                    />
+                  )}
+                </InputMask>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endereco">Endereço completo</Label>
+              <Label htmlFor="enderecoInstituicao">Endereço completo</Label>
               <Input
-                id="endereco"
+                id="enderecoInstituicao"
                 value={formData.endereco}
                 onChange={e => handleChange("endereco", e.target.value)}
                 placeholder="Rua, número, bairro, complemento"
@@ -280,9 +282,9 @@ const CreateCompany = () => {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="cidade">Cidade</Label>
+                <Label htmlFor="cidadeInstituicao">Cidade</Label>
                 <Input
-                  id="cidade"
+                  id="cidadeInstituicao"
                   value={formData.cidade}
                   onChange={e => handleChange("cidade", e.target.value)}
                   placeholder="São Paulo"
@@ -290,9 +292,9 @@ const CreateCompany = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="estado">Estado (UF)</Label>
+                <Label htmlFor="estadoInstituicao">Estado (UF)</Label>
                 <Input
-                  id="estado"
+                  id="estadoInstituicao"
                   value={formData.estado}
                   onChange={e => handleChange("estado", e.target.value)}
                   placeholder="SP"
@@ -303,18 +305,28 @@ const CreateCompany = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="descricao">Descrição (opcional)</Label>
+              <Label htmlFor="descricaoInstituicao">Descrição (opcional)</Label>
               <Textarea
-                id="descricao"
+                id="descricaoInstituicao"
                 value={formData.descricao}
                 onChange={e => handleChange("descricao", e.target.value)}
-                placeholder="Conte um pouco sobre sua empresa..."
+                placeholder="Conte um pouco sobre o trabalho da ONG..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="chavePix">Chave PIX (opcional)</Label>
+              <Input
+                id="chavePix"
+                value={formData.chavePix}
+                onChange={e => handleChange("chavePix", e.target.value)}
+                placeholder="Informe a chave PIX utilizada para doações"
               />
             </div>
 
             <CardFooter className="px-0">
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Salvando..." : "Cadastrar empresa"}
+                {isSubmitting ? "Salvando..." : "Cadastrar ONG"}
               </Button>
             </CardFooter>
           </form>
@@ -324,5 +336,5 @@ const CreateCompany = () => {
   );
 };
 
-export default CreateCompany;
+export default CreateInstitution;
 

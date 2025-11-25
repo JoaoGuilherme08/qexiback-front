@@ -9,6 +9,7 @@ export interface Usuario {
   telefone?: string;
   endereco?: string;
   empresaId?: string;
+  instituicaoId?: string;
   dtCadastro: string;
   status: boolean;
 }
@@ -20,6 +21,7 @@ export interface UsuarioUpdateRequest {
   cpfCnpj?: string;
   endereco?: string;
   empresaId?: string;
+  instituicaoId?: string;
 }
 
 export interface Empresa {
@@ -31,6 +33,8 @@ export interface Empresa {
   enderecoEmpresa?: string;
   cidadeEmpresa?: string;
   estadoEmpresa?: string;
+  email?: string;
+  telefone?: string;
   statusEmpresa: boolean;
   dtCadastro: string;
   dtAtualizacao?: string;
@@ -71,6 +75,43 @@ export interface CadastroResponse {
   data?: Empresa;
 }
 
+export interface Instituicao {
+  id: string;
+  userId: string;
+  nomeInstituicao: string;
+  cnpjInstituicao: string;
+  descricaoInstituicao?: string;
+  enderecoInstituicao?: string;
+  cidadeInstituicao?: string;
+  estadoInstituicao?: string;
+  email?: string;
+  telefone?: string;
+  chavePix?: string;
+  statusInstituicao: boolean;
+  dtCadastro: string;
+  dtAtualizacao?: string;
+  nomeResponsavel?: string;
+  emailResponsavel?: string;
+}
+
+export interface InstituicaoCreateRequest {
+  userId: string;
+  nomeInstituicao: string;
+  cnpjInstituicao: string;
+  descricaoInstituicao?: string;
+  enderecoInstituicao?: string;
+  cidadeInstituicao?: string;
+  estadoInstituicao?: string;
+  email?: string;
+  telefone?: string;
+  chavePix?: string;
+  statusInstituicao?: boolean;
+}
+
+export type InstituicaoUpdateRequest = Partial<Omit<InstituicaoCreateRequest, 'userId' | 'cnpjInstituicao'>> & {
+  statusInstituicao?: boolean;
+};
+
 export interface FuncionarioCreateRequest {
   nome: string;
   email: string;
@@ -109,6 +150,10 @@ export interface LoginResponse {
     empresaId?: string;
     nomeFantasia?: string;
     cnpjEmpresa?: string;
+    instituicaoId?: string;
+    nomeInstituicao?: string;
+    cnpjInstituicao?: string;
+    chavePixInstituicao?: string;
   };
 }
 
@@ -194,6 +239,76 @@ export const apiService = {
 
     if (!response.ok) {
       throw new Error('Erro ao atualizar empresa');
+    }
+
+    return response.json();
+  },
+
+  // Métodos de Instituição
+  async criarInstituicao(data: InstituicaoCreateRequest): Promise<Instituicao> {
+    const response = await fetch(`${API_URL}/instituicoes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao criar instituição');
+    }
+
+    return response.json();
+  },
+
+  async buscarInstituicaoPorId(id: string): Promise<Instituicao> {
+    const response = await fetch(`${API_URL}/instituicoes/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao buscar instituição');
+    }
+
+    return response.json();
+  },
+
+  async getInstituicaoData(userId: string): Promise<Instituicao> {
+    const response = await fetch(`${API_URL}/instituicoes/by-user/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao buscar dados da instituição');
+    }
+
+    return response.json();
+  },
+
+  async updateInstituicaoData(userId: string, data: InstituicaoUpdateRequest): Promise<Instituicao> {
+    const response = await fetch(`${API_URL}/instituicoes/by-user/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao atualizar dados da instituição');
     }
 
     return response.json();

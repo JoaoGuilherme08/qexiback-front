@@ -81,19 +81,20 @@ export const Navbar = ({
     label: "Dashboard",
     icon: Heart
   }, {
-    path: "/institution/profile",
+    path: "/profile",
     label: "Perfil",
     icon: User
   }];
 
-  const isStoreUser = userTipoUsuario === "EMPRESA" || effectiveUserType === "store";
+  const isAdminEmpresa = userTipoUsuario === "ADMINISTRADOR_EMPRESA";
+  const isStoreUser = isAdminEmpresa || userTipoUsuario === "EMPRESA" || effectiveUserType === "store";
 
   let links = userLinks;
   if (effectiveUserType === "institution") {
     links = institutionLinks;
   } else if (isStoreUser) {
     links = [...userLinks, ...storeLinks];
-    if (userTipoUsuario === "ADMINISTRADOR_EMPRESA") {
+    if (isAdminEmpresa) {
       links = [...links, ...adminCompanyLinks];
     }
   }

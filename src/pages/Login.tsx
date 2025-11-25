@@ -68,6 +68,10 @@ const Login = () => {
           localStorage.setItem("userType", "store");
           toast.success(`Bem-vindo, ${response.data.nomeFantasia || response.data.nome}!`);
           window.location.href = "/store/dashboard";
+        } else if (tipoUsuario === "INSTITUICAO") {
+          localStorage.setItem("userType", "institution");
+          toast.success(`Bem-vindo, ${response.data.nomeInstituicao || response.data.nome}!`);
+          window.location.href = "/institution/dashboard";
         } else {
           localStorage.setItem("userType", "user");
           toast.success(`Bem-vindo, ${response.data.nome}!`);

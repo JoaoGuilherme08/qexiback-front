@@ -11,8 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Building2, Users } from "lucide-react";
-import { apiService, Usuario, Empresa } from "@/services/api";
+import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Building2, Users, Heart } from "lucide-react";
+import { apiService, Usuario, Empresa, Instituicao } from "@/services/api";
 import { maskCPF, maskCNPJ, sanitizeDocument, detectDocumentType, isValidCpfRegex, validateCNPJ, isValidCnpjRegex } from "@/utils/validators";
 
 const Profile = () => {
@@ -47,18 +47,38 @@ const Profile = () => {
     descricaoEmpresa: ""
   });
 
+  const [institutionData, setInstitutionData] = useState({
+    id: "",
+    userId: "",
+    nomeInstituicao: "",
+    cnpjInstituicao: "",
+    email: "",
+    telefone: "",
+    enderecoInstituicao: "",
+    cidadeInstituicao: "",
+    estadoInstituicao: "",
+    descricaoInstituicao: "",
+    chavePix: ""
+  });
+
   // Estado de edição
   const [editingUser, setEditingUser] = useState(false);
   const [editingCompany, setEditingCompany] = useState(false);
+  const [editingInstitution, setEditingInstitution] = useState(false);
   const [editUserData, setEditUserData] = useState({
     ...userData
   });
   const [editCompanyData, setEditCompanyData] = useState({
     ...companyData
   });
+  const [editInstitutionData, setEditInstitutionData] = useState({
+    ...institutionData
+  });
   const [cpfCnpjError, setCpfCnpjError] = useState<string | null>(null);
   const [empresaIdAssociada, setEmpresaIdAssociada] = useState<string | null>(null);
   const [hasEmpresaVinculada, setHasEmpresaVinculada] = useState(false);
+  const [instituicaoIdAssociada, setInstituicaoIdAssociada] = useState<string | null>(null);
+  const [hasInstituicaoVinculada, setHasInstituicaoVinculada] = useState(false);
   const [funcionarios, setFuncionarios] = useState<Usuario[]>([]);
   const [isLoadingFuncionarios, setIsLoadingFuncionarios] = useState(false);
   const [isCreatingFuncionario, setIsCreatingFuncionario] = useState(false);
@@ -150,6 +170,20 @@ const Profile = () => {
     descricaoEmpresa: empresa?.descricaoEmpresa || ""
   });
 
+  const mapInstituicaoToState = (instituicao?: Partial<Instituicao>, usuarioRef?: typeof userData) => ({
+    id: instituicao?.id || "",
+    userId: instituicao?.userId || usuarioRef?.id || "",
+    nomeInstituicao: instituicao?.nomeInstituicao || "",
+    cnpjInstituicao: instituicao?.cnpjInstituicao || "",
+    email: instituicao?.email || usuarioRef?.email || "",
+    telefone: instituicao?.telefone || usuarioRef?.phone || "",
+    enderecoInstituicao: instituicao?.enderecoInstituicao || usuarioRef?.address || "",
+    cidadeInstituicao: instituicao?.cidadeInstituicao || "",
+    estadoInstituicao: instituicao?.estadoInstituicao || "",
+    descricaoInstituicao: instituicao?.descricaoInstituicao || "",
+    chavePix: instituicao?.chavePix || ""
+  });
+
   const carregarFuncionarios = async (empresaId: string) => {
     setIsLoadingFuncionarios(true);
     try {
@@ -215,6 +249,38 @@ const Profile = () => {
       toast({
         title: "Erro",
         description: error.message || "Não foi possível carregar as informações da empresa.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const carregarDadosInstituicao = async (
+    instituicaoIdToken: string | null,
+    ownerUserId: string,
+    usuarioBase: typeof userData
+  ) => {
+    try {
+      let instituicao: Instituicao | null = null;
+      if (instituicaoIdToken) {
+        instituicao = await apiService.buscarInstituicaoPorId(instituicaoIdToken);
+      } else if (ownerUserId) {
+        instituicao = await apiService.getInstituicaoData(ownerUserId);
+      }
+
+      if (!instituicao) {
+        return;
+      }
+
+      const mapped = mapInstituicaoToState(instituicao, usuarioBase);
+      setInstitutionData(mapped);
+      setEditInstitutionData(mapped);
+      setInstituicaoIdAssociada(instituicao.id || instituicaoIdToken || mapped.id || null);
+      setHasInstituicaoVinculada(true);
+    } catch (error: any) {
+      console.error("Erro ao carregar dados da instituição:", error);
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível carregar as informações da ONG.",
         variant: "destructive"
       });
     }
@@ -355,13 +421,14 @@ const Profile = () => {
 
           const empresaIdToken = usuarioData.empresaId || null;
           setEmpresaIdAssociada(empresaIdToken);
-          setHasEmpresaVinculada(Boolean(
+          const usuarioTemPerfilCorporativo = Boolean(
             empresaIdToken ||
             usuarioData.nomeFantasia ||
             usuarioData.cnpjEmpresa ||
             usuarioData.tipoUsuario === "ADMINISTRADOR_EMPRESA" ||
             usuarioData.tipoUsuario === "FUNCIONARIO"
-          ));
+          );
+          setHasEmpresaVinculada(usuarioTemPerfilCorporativo);
 
           if (shouldMostrarEmpresa(usuarioData.tipoUsuario)) {
             await carregarDadosEmpresa(empresaIdToken, usuarioData.userId, newUserData, usuarioData.tipoUsuario);
@@ -370,7 +437,30 @@ const Profile = () => {
             setCompanyData(emptyCompany);
             setEditCompanyData(emptyCompany);
             setFuncionarios([]);
-            setHasEmpresaVinculada(false);
+            if (!usuarioTemPerfilCorporativo) {
+              setHasEmpresaVinculada(false);
+            }
+          }
+
+          const instituicaoIdToken = usuarioData.instituicaoId || null;
+          setInstituicaoIdAssociada(instituicaoIdToken);
+          const usuarioTemOng = Boolean(
+            instituicaoIdToken ||
+            usuarioData.nomeInstituicao ||
+            usuarioData.cnpjInstituicao ||
+            usuarioData.tipoUsuario === "INSTITUICAO"
+          );
+          setHasInstituicaoVinculada(usuarioTemOng);
+
+          if (usuarioData.tipoUsuario === "INSTITUICAO" || instituicaoIdToken) {
+            await carregarDadosInstituicao(instituicaoIdToken, usuarioData.userId, newUserData);
+          } else {
+            const emptyInstitution = mapInstituicaoToState(undefined, newUserData);
+            setInstitutionData(emptyInstitution);
+            setEditInstitutionData(emptyInstitution);
+            if (!usuarioTemOng) {
+              setHasInstituicaoVinculada(false);
+            }
           }
         }
       } catch (error) {
@@ -423,6 +513,7 @@ const Profile = () => {
         cpfCnpj: documentoSanitizado || undefined,
         endereco: editUserData.address,
         empresaId: empresaIdAssociada || undefined,
+        instituicaoId: instituicaoIdAssociada || undefined,
       });
 
       const newUserData = {
@@ -440,6 +531,9 @@ const Profile = () => {
       setCpfCnpjError(null);
       if (updatedUser.empresaId) {
         setEmpresaIdAssociada(updatedUser.empresaId);
+      }
+      if (updatedUser.instituicaoId) {
+        setInstituicaoIdAssociada(updatedUser.instituicaoId);
       }
 
       toast({
@@ -506,6 +600,54 @@ const Profile = () => {
       });
     }
   };
+
+  const handleEditInstitution = () => {
+    setEditingInstitution(true);
+    setEditInstitutionData({ ...institutionData });
+  };
+
+  const handleCancelInstitution = () => {
+    setEditingInstitution(false);
+    setEditInstitutionData({ ...institutionData });
+  };
+
+  const handleSaveInstitution = async () => {
+    try {
+      const ownerId = institutionData.userId || userData.id;
+      const updatedInstitution = await apiService.updateInstituicaoData(ownerId, {
+        nomeInstituicao: editInstitutionData.nomeInstituicao,
+        email: editInstitutionData.email,
+        telefone: editInstitutionData.telefone,
+        enderecoInstituicao: editInstitutionData.enderecoInstituicao,
+        cidadeInstituicao: editInstitutionData.cidadeInstituicao,
+        estadoInstituicao: editInstitutionData.estadoInstituicao,
+        descricaoInstituicao: editInstitutionData.descricaoInstituicao,
+        chavePix: editInstitutionData.chavePix,
+        statusInstituicao: true
+      });
+
+      const mappedInstitution = mapInstituicaoToState(updatedInstitution, userData);
+      setInstitutionData(mappedInstitution);
+      setEditInstitutionData(mappedInstitution);
+      setEditingInstitution(false);
+      if (mappedInstitution.id) {
+        setInstituicaoIdAssociada(mappedInstitution.id);
+        setHasInstituicaoVinculada(true);
+      }
+
+      toast({
+        title: "Perfil atualizado",
+        description: "Os dados da ONG foram salvos com sucesso."
+      });
+    } catch (error: any) {
+      console.error("Erro ao atualizar instituição:", error);
+      toast({
+        title: "Erro ao atualizar",
+        description: error.message || "Não foi possível salvar os dados da ONG. Tente novamente.",
+        variant: "destructive"
+      });
+    }
+  };
   const getInitials = (name: string) => {
     if (!name) return "U";
     return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
@@ -523,12 +665,13 @@ const Profile = () => {
   }
 
   const hasCompany = hasEmpresaVinculada || Boolean(companyData.id || empresaIdAssociada);
+  const hasInstitution = hasInstituicaoVinculada || Boolean(institutionData.id || instituicaoIdAssociada);
   const showCompanySection = hasCompany && shouldMostrarEmpresa(tipoUsuario);
+  const showInstitutionSection = hasInstitution && tipoUsuario === "INSTITUICAO";
   const canEditCompany = hasCompany && (tipoUsuario === "EMPRESA" || tipoUsuario === "ADMINISTRADOR_EMPRESA");
+  const canEditInstitution = hasInstitution && tipoUsuario === "INSTITUICAO";
   const showEmployeeManagement = hasCompany && tipoUsuario === "ADMINISTRADOR_EMPRESA";
-  const canCreateCompany =
-    !hasCompany &&
-    (tipoUsuario === "CLIENTE" || (tipoUsuario === "EMPRESA" && !empresaIdAssociada));
+  const canCreateOrganization = !hasCompany && !hasInstitution && tipoUsuario === "CLIENTE";
 
   return <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -672,23 +815,25 @@ const Profile = () => {
             </CardContent>
           </Card>
 
-          {canCreateCompany && (
+          {canCreateOrganization && (
             <Card>
               <CardHeader>
-                <CardTitle>Cadastre sua empresa</CardTitle>
+                <CardTitle>Cadastre sua organização</CardTitle>
                 <CardDescription>
-                  Traga sua operação para o Qexiback e ganhe acesso ao painel de administração.
+                  Escolha se deseja operar como empresa ou ONG para liberar os painéis corporativos do Qexiback.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Após cadastrar a empresa você se tornará automaticamente o administrador responsável e poderá
-                  convidar membros da equipe.
+                  Depois do cadastro você assumirá o papel de responsável pela organização e poderá convidar outras pessoas.
                 </p>
               </CardContent>
-              <CardFooter>
-                <Button onClick={() => navigate("/company/create")}>
-                  Cadastrar minha empresa
+              <CardFooter className="flex flex-col gap-3 md:flex-row">
+                <Button className="w-full" onClick={() => navigate("/company/create")}>
+                  Cadastrar empresa
+                </Button>
+                <Button className="w-full" variant="outline" onClick={() => navigate("/institution/create")}>
+                  Cadastrar ONG
                 </Button>
               </CardFooter>
             </Card>
@@ -890,6 +1035,200 @@ const Profile = () => {
               </CardContent>
             </Card>
           )}
+
+          {showInstitutionSection && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Informações da ONG</CardTitle>
+                    <CardDescription>Dados provenientes do cadastro social</CardDescription>
+                  </div>
+                  {canEditInstitution && (
+                    !editingInstitution ? (
+                      <Button onClick={handleEditInstitution} variant="outline" size="sm">
+                        <Edit2 className="w-4 h-4 mr-2" />
+                        Editar
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button onClick={handleSaveInstitution} variant="default" size="sm">
+                          <Save className="w-4 h-4 mr-2" />
+                          Salvar
+                        </Button>
+                        <Button onClick={handleCancelInstitution} variant="outline" size="sm">
+                          <X className="w-4 h-4 mr-2" />
+                          Cancelar
+                        </Button>
+                      </div>
+                    )
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {institutionData.id ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <Heart className="w-4 h-4" />
+                        Nome da instituição
+                      </Label>
+                      {editingInstitution ? (
+                        <Input
+                          value={editInstitutionData.nomeInstituicao}
+                          onChange={e => setEditInstitutionData({
+                            ...editInstitutionData,
+                            nomeInstituicao: e.target.value
+                          })}
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{institutionData.nomeInstituicao || "Não informado"}</p>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>E-mail</Label>
+                        {editingInstitution ? (
+                          <Input
+                            type="email"
+                            value={editInstitutionData.email}
+                            onChange={e => setEditInstitutionData({
+                              ...editInstitutionData,
+                              email: e.target.value
+                            })}
+                          />
+                        ) : (
+                          <p className="text-muted-foreground">{institutionData.email || "Não informado"}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Telefone</Label>
+                        {editingInstitution ? (
+                          <InputMask
+                            mask="(99) 99999-9999"
+                            value={editInstitutionData.telefone}
+                            onChange={e => setEditInstitutionData({
+                              ...editInstitutionData,
+                              telefone: e.target.value
+                            })}
+                          >
+                            {(inputProps: any) => (
+                              <Input
+                                {...inputProps}
+                                placeholder="(00) 00000-0000"
+                              />
+                            )}
+                          </InputMask>
+                        ) : (
+                          <p className="text-muted-foreground">{institutionData.telefone || "Não informado"}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-2">
+                      <Label>Endereço</Label>
+                      {editingInstitution ? (
+                        <Input
+                          value={editInstitutionData.enderecoInstituicao}
+                          onChange={e => setEditInstitutionData({
+                            ...editInstitutionData,
+                            enderecoInstituicao: e.target.value
+                          })}
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{institutionData.enderecoInstituicao || "Não informado"}</p>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Cidade</Label>
+                        {editingInstitution ? (
+                          <Input
+                            value={editInstitutionData.cidadeInstituicao}
+                            onChange={e => setEditInstitutionData({
+                              ...editInstitutionData,
+                              cidadeInstituicao: e.target.value
+                            })}
+                          />
+                        ) : (
+                          <p className="text-muted-foreground">{institutionData.cidadeInstituicao || "Não informado"}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Estado</Label>
+                        {editingInstitution ? (
+                          <Input
+                            value={editInstitutionData.estadoInstituicao}
+                            maxLength={2}
+                            onChange={e => setEditInstitutionData({
+                              ...editInstitutionData,
+                              estadoInstituicao: e.target.value.toUpperCase()
+                            })}
+                          />
+                        ) : (
+                          <p className="text-muted-foreground">{institutionData.estadoInstituicao || "Não informado"}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-2">
+                      <Label>Descrição</Label>
+                      {editingInstitution ? (
+                        <Textarea
+                          value={editInstitutionData.descricaoInstituicao}
+                          onChange={e => setEditInstitutionData({
+                            ...editInstitutionData,
+                            descricaoInstituicao: e.target.value
+                          })}
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{institutionData.descricaoInstituicao || "Não informado"}</p>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>CNPJ</Label>
+                        <p className="text-muted-foreground">
+                          {formatDocumentForDisplay(institutionData.cnpjInstituicao) || "Não informado"}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Chave PIX</Label>
+                        {editingInstitution ? (
+                          <Input
+                            value={editInstitutionData.chavePix}
+                            onChange={e => setEditInstitutionData({
+                              ...editInstitutionData,
+                              chavePix: e.target.value
+                            })}
+                            placeholder="Chave PIX da instituição"
+                          />
+                        ) : (
+                          <p className="text-muted-foreground">{institutionData.chavePix || "Não informado"}</p>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-muted-foreground">Nenhuma ONG vinculada ao seu usuário.</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
 
           {showEmployeeManagement && empresaIdAssociada && (
             <Card>

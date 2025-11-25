@@ -11,6 +11,7 @@ import CompleteRegistration from "./pages/CompleteRegistration";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import CreateCompany from "./pages/CreateCompany";
+import CreateInstitution from "./pages/CreateInstitution";
 import CompanyUsers from "./pages/CompanyUsers";
 import Wallet from "./pages/Wallet";
 import StoreDashboard from "./pages/StoreDashboard";
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
           <Route path="/company/create" element={<ProtectedRoute><CreateCompany /></ProtectedRoute>} />
           <Route path="/company/users" element={<ProtectedRoute><CompanyUsers /></ProtectedRoute>} />
+          <Route path="/institution/create" element={<ProtectedRoute><CreateInstitution /></ProtectedRoute>} />
           <Route path="/store/dashboard" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
           <Route path="/store/products" element={<ProtectedRoute><StoreProducts /></ProtectedRoute>} />
           <Route path="/institution/dashboard" element={<ProtectedRoute><InstitutionDashboard /></ProtectedRoute>} />
