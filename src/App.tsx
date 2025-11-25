@@ -3,11 +3,15 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import CompleteRegistration from "./pages/CompleteRegistration";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
+import CreateCompany from "./pages/CreateCompany";
+import CompanyUsers from "./pages/CompanyUsers";
 import Wallet from "./pages/Wallet";
 import StoreDashboard from "./pages/StoreDashboard";
 import StoreProducts from "./pages/StoreProducts";
@@ -27,13 +31,19 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/wallet" element={<Wallet />} />
-          <Route path="/store/dashboard" element={<StoreDashboard />} />
-          <Route path="/store/products" element={<StoreProducts />} />
-          <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/complete-registration" element={<CompleteRegistration />} />
+          
+          {/* Rotas Protegidas */}
+          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+          <Route path="/company/create" element={<ProtectedRoute><CreateCompany /></ProtectedRoute>} />
+          <Route path="/company/users" element={<ProtectedRoute><CompanyUsers /></ProtectedRoute>} />
+          <Route path="/store/dashboard" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
+          <Route path="/store/products" element={<ProtectedRoute><StoreProducts /></ProtectedRoute>} />
+          <Route path="/institution/dashboard" element={<ProtectedRoute><InstitutionDashboard /></ProtectedRoute>} />
+          <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

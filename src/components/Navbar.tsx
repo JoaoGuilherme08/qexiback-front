@@ -1,18 +1,48 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Wallet, Store, Heart, Menu, X, LogOut, User } from "lucide-react";
-import { useState } from "react";
+import { Wallet, Store, Heart, Menu, X, LogOut, User, Users } from "lucide-react";
+import { useState, useEffect } from "react";
+
 interface NavbarProps {
   userType?: "user" | "store" | "institution" | null;
-  onLogout?: () => void;
 }
+
 export const Navbar = ({
-  userType = null,
-  onLogout
+  userType = null
 }: NavbarProps) => {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userTipoUsuario, setUserTipoUsuario] = useState<string | null>(null);
+  const [storedUserType, setStoredUserType] = useState<NavbarProps["userType"]>(null);
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
+  
+  // Verificar tipo de usuário do localStorage
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+        setUserTipoUsuario(parsed.tipoUsuario);
+      } catch (error) {
+        console.error("Erro ao parsear userData:", error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const savedUserType = localStorage.getItem("userType");
+    if (savedUserType === "user" || savedUserType === "store" || savedUserType === "institution") {
+      setStoredUserType(savedUserType);
+    } else {
+      setStoredUserType(null);
+    }
+  }, []);
+
+  const effectiveUserType = userType ?? storedUserType;
+  
+  // Verificar se usuário está autenticado
+  const isAuthenticated = !!localStorage.getItem("authToken");
   const userLinks = [{
     path: "/home",
     label: "Ofertas",
@@ -26,15 +56,26 @@ export const Navbar = ({
     label: "Perfil",
     icon: User
   }];
+  
   const storeLinks = [{
     path: "/store/dashboard",
-    label: "Dashboard",
+    label: "Dashboard Loja",
     icon: Store
   }, {
     path: "/store/products",
-    label: "Produtos",
+    label: "Meus Produtos",
     icon: Store
   }];
+  const adminCompanyLinks = [{
+    path: "/company/create",
+    label: "Cadastrar Empresa",
+    icon: Store
+  }, {
+    path: "/company/users",
+    label: "Usuários da Empresa",
+    icon: Users
+  }];
+  
   const institutionLinks = [{
     path: "/institution/dashboard",
     label: "Dashboard",
@@ -44,12 +85,31 @@ export const Navbar = ({
     label: "Perfil",
     icon: User
   }];
-  const links = userType === "store" ? storeLinks : userType === "institution" ? institutionLinks : userLinks;
-  return <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-soft">
-      <div className="container mx-auto px-4 bg-[#281f56]">
+
+  const isStoreUser = userTipoUsuario === "EMPRESA" || effectiveUserType === "store";
+
+  let links = userLinks;
+  if (effectiveUserType === "institution") {
+    links = institutionLinks;
+  } else if (isStoreUser) {
+    links = [...userLinks, ...storeLinks];
+    if (userTipoUsuario === "ADMINISTRADOR_EMPRESA") {
+      links = [...links, ...adminCompanyLinks];
+    }
+  }
+  
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    localStorage.removeItem("userType");
+    navigate("/login");
+  };
+
+  return <nav className="sticky top-0 z-50 w-full bg-[#281f56] border-b border-border shadow-soft">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to={userType ? "/home" : "/"} className="flex items-center gap-2 group">
+          <Link to={effectiveUserType ? "/home" : "/"} className="flex items-center gap-2 group">
             
             <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] bg-clip-text text-[#00ea7c]">
               Qexiback
@@ -57,7 +117,7 @@ export const Navbar = ({
           </Link>
 
           {/* Desktop Navigation */}
-          {userType && <div className="hidden md:flex items-center gap-1">
+          {effectiveUserType && <div className="hidden md:flex items-center gap-1">
               {links.map(link => <Link key={link.path} to={link.path}>
                   <Button variant={isActive(link.path) ? "default" : "ghost"} size="sm" className="gap-2 bg-[#f4efea] text-[#281f56]">
                     <link.icon className="w-4 h-4" />
@@ -68,7 +128,7 @@ export const Navbar = ({
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            {!userType ? <>
+            {!isAuthenticated ? <>
                 <Link to="/login">
                   <Button variant="ghost" size="sm" className="bg-[#f4efea]">
                     Entrar
@@ -79,7 +139,7 @@ export const Navbar = ({
                     Cadastrar
                   </Button>
                 </Link>
-              </> : <Button variant="outline" size="sm" onClick={onLogout} className="gap-2 bg-[#00ea7c] text-[#281f56]">
+              </> : <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 bg-[#00ea7c] text-[#281f56]">
                 <LogOut className="w-4 h-4" />
                 Sair
               </Button>}
@@ -93,7 +153,7 @@ export const Navbar = ({
 
         {/* Mobile Menu */}
         {mobileMenuOpen && <div className="md:hidden py-4 border-t border-border animate-in slide-in-from-top">
-            {userType && <div className="flex flex-col gap-2 mb-4">
+            {effectiveUserType && <div className="flex flex-col gap-2 mb-4">
                 {links.map(link => <Link key={link.path} to={link.path} onClick={() => setMobileMenuOpen(false)}>
                     <Button variant={isActive(link.path) ? "default" : "ghost"} className="w-full justify-start gap-2" size="sm">
                       <link.icon className="w-4 h-4" />
@@ -102,7 +162,7 @@ export const Navbar = ({
                   </Link>)}
               </div>}
             <div className="flex flex-col gap-2">
-              {!userType ? <>
+              {!isAuthenticated ? <>
                   <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full">
                       Entrar
@@ -113,7 +173,7 @@ export const Navbar = ({
                       Cadastrar
                     </Button>
                   </Link>
-                </> : <Button variant="outline" onClick={onLogout} className="w-full gap-2">
+                </> : <Button variant="outline" onClick={handleLogout} className="w-full gap-2">
                   <LogOut className="w-4 h-4" />
                   Sair
                 </Button>}

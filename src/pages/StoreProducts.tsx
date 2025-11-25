@@ -100,7 +100,7 @@ const StoreProducts = () => {
   };
   const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
   return <div className="min-h-screen flex flex-col">
-      <Navbar userType="store" onLogout={handleLogout} />
+      <Navbar userType="store" />
 
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">
@@ -112,7 +112,11 @@ const StoreProducts = () => {
                 Cadastre e gerencie seus produtos e serviços
               </p>
             </div>
-            <Dialog>
+            <div className="flex gap-2">
+              <Button onClick={() => navigate("/store/dashboard")} variant="outline" className="gap-2">
+                Voltar ao Dashboard
+              </Button>
+              <Dialog>
               <DialogTrigger asChild>
                 <Button variant="hero" className="gap-2">
                   <Plus className="w-4 h-4" />
@@ -214,7 +218,8 @@ const StoreProducts = () => {
                   </Button>
                 </DialogFooter>
               </DialogContent>
-            </Dialog>
+              </Dialog>
+            </div>
           </div>
 
           {/* Search */}

@@ -94,7 +94,7 @@ const Home = () => {
     }
   };
   return <div className="min-h-screen flex flex-col">
-      <Navbar userType="user" onLogout={handleLogout} />
+      <Navbar userType="user" />
 
       <main className="flex-1">
         {/* Hero Search Section */}

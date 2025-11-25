@@ -128,7 +128,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar userType="user" onLogout={handleLogout} />
+      <Navbar />
 
       <main className="flex-1 py-8 bg-background">
         <div className="container mx-auto px-4">

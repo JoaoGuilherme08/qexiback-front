@@ -1,0 +1,407 @@
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { LogIn, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
+import { apiService } from "@/services/api";
+
+const Login = () => {
+  const navigate = useNavigate();
+  const { loginWithRedirect, isAuthenticated, user, isLoading } = useAuth0();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+  // Verificar se usuário já está logado ao carregar a página
+  useEffect(() => {
+    const checkExistingLogin = () => {
+      const authToken = localStorage.getItem("authToken");
+      const storedUserType = localStorage.getItem("userType");
+      const userData = localStorage.getItem("userData");
+
+      if (authToken && userData) {
+        // Redirecionar baseado no tipo de usuário
+        if (storedUserType === "store") {
+          navigate("/store/dashboard");
+        } else {
+          navigate("/home");
+        }
+      }
+    };
+
+    checkExistingLogin();
+  }, [navigate]);
+
+  // Sincronizar usuário após login com Auth0 (apenas para usuários Auth0)
+  useEffect(() => {
+    const syncUser = async () => {
+      // Verificar se há token tradicional no localStorage
+      const authToken = localStorage.getItem("authToken");
+      
+      // Se há token tradicional, não processar Auth0
+      if (authToken) {
+        return;
+      }
+
+      // Processar apenas login Auth0
+      if (isAuthenticated && user && !isProcessing) {
+        setIsProcessing(true);
+        try {
+          await apiService.syncUsuarioAuth0({
+            auth0UserId: user.sub!,
+            nome: user.name || user.email!.split('@')[0],
+            email: user.email!,
+            tipoUsuario: 'CLIENTE',
+          });
+
+          toast.success("Login realizado com sucesso!");
+          navigate("/home");
+        } catch (error) {
+          console.error("Erro ao sincronizar usuário:", error);
+          toast.error("Erro ao fazer login. Tente novamente.");
+        } finally {
+          setIsProcessing(false);
+        }
+      }
+    };
+
+    syncUser();
+  }, [isAuthenticated, user, navigate, isProcessing]);
+
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithRedirect({
+        authorizationParams: {
+          connection: 'google-oauth2',
+          prompt: 'select_account',
+        },
+        appState: {
+          returnTo: '/home',
+        },
+      });
+    } catch (error) {
+      toast.error("Erro ao conectar com o Google");
+      console.error(error);
+    }
+  };
+
+  const handleEmailLogin = async () => {
+    try {
+      await loginWithRedirect({
+        authorizationParams: {
+          login_hint: formData.email,
+        },
+        appState: {
+          returnTo: '/home',
+        },
+      });
+    } catch (error) {
+      toast.error("Erro ao fazer login");
+      console.error(error);
+    }
+  };
+  // Login unificado - detecta automaticamente o tipo de usuário
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsProcessing(true);
+
+    try {
+      if (!formData.email || !formData.password) {
+        toast.error("Por favor, preencha todos os campos");
+        return;
+      }
+
+      console.log("Iniciando login unificado...");
+
+      // Tentar login tradicional primeiro
+      const response = await apiService.login({
+        email: formData.email,
+        senha: formData.password
+      });
+
+      console.log("Resposta do login:", response);
+
+      if (response.success && response.data) {
+        // Limpar qualquer dados de Auth0 existentes
+        localStorage.removeItem("auth0.is.authenticated");
+        
+        // Salvar token e dados no localStorage
+        localStorage.setItem("authToken", response.data.token);
+        localStorage.setItem("userData", JSON.stringify(response.data));
+
+        // Determinar tipo de usuário e redirecionar automaticamente
+        const tipoUsuario = response.data.tipoUsuario;
+        
+        if (tipoUsuario === "EMPRESA" || tipoUsuario === "ADMINISTRADOR_EMPRESA") {
+          localStorage.setItem("userType", "store");
+          toast.success(`Bem-vindo, ${response.data.nomeFantasia || response.data.nome}!`);
+          window.location.href = "/store/dashboard";
+        } else {
+          localStorage.setItem("userType", "user");
+          toast.success(`Bem-vindo, ${response.data.nome}!`);
+          window.location.href = "/home";
+        }
+
+        console.log(`Login realizado - Tipo: ${tipoUsuario}, redirecionando...`);
+
+      } else {
+        toast.error(response.message || "Erro ao fazer login");
+      }
+
+    } catch (error: any) {
+      console.error("Erro no login:", error);
+      
+      // Se o erro for sobre login social, mostrar mensagem específica
+      if (error.message?.includes("login social")) {
+        toast.error("Esta conta utiliza login social. Use o botão 'Continuar com Google'");
+      } else {
+        toast.error(error.message || "Erro ao fazer login. Verifique suas credenciais.");
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Simulação de login para instituições (ainda usando Auth0)
+    if (formData.email && formData.password) {
+      localStorage.setItem("userType", userType);
+      toast.success("Login realizado com sucesso!");
+      navigate("/institution/dashboard");
+    } else {
+      toast.error("Por favor, preencha todos os campos");
+    }
+  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  if (isLoading || isProcessing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted to-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Processando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-muted to-background p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
+          
+          <span className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] bg-clip-text text-[#00ea7c]">
+            Qexiback
+          </span>
+        </Link>
+
+        <Card className="shadow-strong">
+          <CardHeader>
+            <CardTitle className="text-2xl">Entrar na plataforma</CardTitle>
+            <CardDescription>Escolha seu tipo de acesso</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={userType} onValueChange={value => setUserType(value as typeof userType)}>
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="user" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Wallet className="w-4 h-4" />
+                  <span className="hidden sm:inline">Usuário</span>
+                </TabsTrigger>
+                <TabsTrigger value="store" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Store className="w-4 h-4" />
+                  <span className="hidden sm:inline">Loja</span>
+                </TabsTrigger>
+                <TabsTrigger value="institution" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Heart className="w-4 h-4" />
+                  <span className="hidden sm:inline">ONG</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="user">
+                <div className="space-y-4">
+                    {/* Google Login */}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                      onClick={handleGoogleLogin}
+                    >
+                      <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                        <path
+                          fill="currentColor"
+                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        />
+                      </svg>
+                      Entrar com Google
+                    </Button>
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <Separator />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                          Ou entre com e-mail
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Email Login Form */}
+                    <form onSubmit={(e) => { e.preventDefault(); handleEmailLogin(); }} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="email">E-mail</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="seu@email.com"
+                          value={formData.email}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="password">Senha</Label>
+                        <Input
+                          id="password"
+                          name="password"
+                          type="password"
+                          placeholder="••••••••"
+                          value={formData.password}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                      <div className="flex justify-end">
+                        <a href="#" className="text-sm text-primary hover:underline">
+                          Esqueceu a senha?
+                        </a>
+                      </div>
+                      <Button type="submit" className="w-full" size="lg">
+                        Entrar
+                      </Button>
+                    </form>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="store">
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <p className="text-sm text-muted-foreground">
+                      Acesso exclusivo para lojas cadastradas
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleStoreLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="store-email">E-mail da loja</Label>
+                      <Input 
+                        id="store-email" 
+                        name="email" 
+                        type="email" 
+                        placeholder="contato@loja.com" 
+                        value={formData.email} 
+                        onChange={handleChange} 
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="store-password">Senha</Label>
+                      <Input 
+                        id="store-password" 
+                        name="password" 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={formData.password} 
+                        onChange={handleChange} 
+                        required 
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <a href="#" className="text-sm text-primary hover:underline">
+                        Esqueceu a senha?
+                      </a>
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      size="lg"
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? "Entrando..." : "Entrar como Loja"}
+                    </Button>
+                  </form>
+
+                  <div className="text-center mt-4">
+                    <p className="text-sm text-muted-foreground">
+                      Não tem uma conta de loja?{" "}
+                      <Link to="/register" className="text-primary hover:underline font-medium">
+                        Cadastre sua loja
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="institution">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input id="email" name="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Senha</Label>
+                    <Input id="password" name="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required />
+                  </div>
+                  <div className="flex justify-end">
+                    <a href="#" className="text-sm text-primary hover:underline">
+                      Esqueceu a senha?
+                    </a>
+                  </div>
+                  <Button type="submit" className="w-full" size="lg">
+                    Entrar
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <p className="text-sm text-muted-foreground">
+              Não tem uma conta?{" "}
+              <Link to="/register" className="text-primary hover:underline font-medium">
+                Cadastre-se
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
+    </div>;
+};
+export default Login;

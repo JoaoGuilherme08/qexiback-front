@@ -158,7 +158,7 @@ const Wallet = () => {
       </Badge>;
   };
   return <div className="min-h-screen flex flex-col">
-      <Navbar userType="user" onLogout={handleLogout} />
+      <Navbar userType="user" />
 
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">

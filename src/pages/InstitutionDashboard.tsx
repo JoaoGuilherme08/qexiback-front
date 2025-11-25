@@ -53,7 +53,7 @@ const InstitutionDashboard = () => {
     date: "2025-01-09"
   }];
   return <div className="min-h-screen flex flex-col">
-      <Navbar userType="institution" onLogout={handleLogout} />
+      <Navbar userType="institution" />
 
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">

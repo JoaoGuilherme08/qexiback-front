@@ -1,16 +1,80 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Users, Wallet, TrendingUp, Package, Tag } from "lucide-react";
+import { toast } from "sonner";
+
+interface UserData {
+  userId: string;
+  nome: string;
+  email: string;
+  tipoUsuario: string;
+  token: string;
+  expiresIn: number;
+  empresaId?: string;
+  nomeFantasia?: string;
+  cnpjEmpresa?: string;
+}
+
 const StoreDashboard = () => {
   const navigate = useNavigate();
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const authToken = localStorage.getItem("authToken");
+      const storedUserType = localStorage.getItem("userType");
+      const storedUserData = localStorage.getItem("userData");
+
+      if (!authToken || storedUserType !== "store" || !storedUserData) {
+        toast.error("Sessão expirada. Faça login novamente.");
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const parsedUserData = JSON.parse(storedUserData);
+        setUserData(parsedUserData);
+      } catch (error) {
+        console.error("Erro ao parsear dados do usuário:", error);
+        toast.error("Erro nos dados da sessão. Faça login novamente.");
+        navigate("/login");
+        return;
+      }
+
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [navigate]);
+
   const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
     localStorage.removeItem("userType");
+    toast.success("Logout realizado com sucesso!");
     navigate("/");
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return null;
+  }
 
   // Mock data
   const stats = {
@@ -42,16 +106,34 @@ const StoreDashboard = () => {
     date: "2025-01-09"
   }];
   return <div className="min-h-screen flex flex-col">
-      <Navbar userType="store" onLogout={handleLogout} />
+      <Navbar userType="store" />
 
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Dashboard da Loja</h1>
-            <p className="text-muted-foreground">
-              Cafeteria Central - Visão geral do seu negócio
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Dashboard da Loja</h1>
+                <p className="text-muted-foreground">
+                  {userData.nomeFantasia || userData.nome} - Visão geral do seu negócio
+                </p>
+                {userData.cnpjEmpresa && (
+                  <p className="text-sm text-muted-foreground">
+                    CNPJ: {userData.cnpjEmpresa}
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={() => navigate("/store/products")} variant="default" className="gap-2">
+                  <Package className="w-4 h-4" />
+                  Visualizar Produtos
+                </Button>
+                <Button onClick={handleLogout} variant="outline">
+                  Sair
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Stats Grid */}
