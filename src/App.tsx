@@ -16,8 +16,11 @@ import CompanyUsers from "./pages/CompanyUsers";
 import Wallet from "./pages/Wallet";
 import StoreDashboard from "./pages/StoreDashboard";
 import StoreProducts from "./pages/StoreProducts";
+import ReleaseProduct from "./pages/ReleaseProduct";
 import InstitutionDashboard from "./pages/InstitutionDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import ProductDetails from "./pages/ProductDetails";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,8 +46,11 @@ const App = () => (
           <Route path="/institution/create" element={<ProtectedRoute><CreateInstitution /></ProtectedRoute>} />
           <Route path="/store/dashboard" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
           <Route path="/store/products" element={<ProtectedRoute><StoreProducts /></ProtectedRoute>} />
+          <Route path="/store/release-product" element={<ProtectedRoute><ReleaseProduct /></ProtectedRoute>} />
           <Route path="/institution/dashboard" element={<ProtectedRoute><InstitutionDashboard /></ProtectedRoute>} />
           <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/offers/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
+          <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

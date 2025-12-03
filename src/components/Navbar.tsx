@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Wallet, Store, Heart, Menu, X, LogOut, User, Users } from "lucide-react";
 import { useState, useEffect } from "react";
+import { clearStoredAuth } from "@/utils/auth";
 
 interface NavbarProps {
   userType?: "user" | "store" | "institution" | null;
@@ -14,6 +15,7 @@ export const Navbar = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userTipoUsuario, setUserTipoUsuario] = useState<string | null>(null);
   const [storedUserType, setStoredUserType] = useState<NavbarProps["userType"]>(null);
+  const [hasEmpresa, setHasEmpresa] = useState(false);
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
   
@@ -24,6 +26,10 @@ export const Navbar = ({
       try {
         const parsed = JSON.parse(userData);
         setUserTipoUsuario(parsed.tipoUsuario);
+        // Verificar se o usuário tem uma empresa associada
+        if (parsed.empresaId || parsed.tipoUsuario === "EMPRESA" || parsed.tipoUsuario === "ADMINISTRADOR_EMPRESA" || parsed.tipoUsuario === "MEMBRO_EMPRESA") {
+          setHasEmpresa(true);
+        }
       } catch (error) {
         console.error("Erro ao parsear userData:", error);
       }
@@ -66,11 +72,15 @@ export const Navbar = ({
     label: "Meus Produtos",
     icon: Store
   }];
-  const adminCompanyLinks = [{
+  const adminCompanyLinks = !hasEmpresa ? [{
     path: "/company/create",
     label: "Cadastrar Empresa",
     icon: Store
   }, {
+    path: "/company/users",
+    label: "Usuários da Empresa",
+    icon: Users
+  }] : [{
     path: "/company/users",
     label: "Usuários da Empresa",
     icon: Users
@@ -100,9 +110,7 @@ export const Navbar = ({
   }
   
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userData");
-    localStorage.removeItem("userType");
+    clearStoredAuth();
     navigate("/login");
   };
 

@@ -228,6 +228,36 @@ export const apiService = {
     return response.json();
   },
 
+  async buscarEmpresasPorNome(nome: string): Promise<Empresa[]> {
+    const response = await fetch(`${API_URL}/empresas/buscar?nome=${encodeURIComponent(nome)}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao buscar empresas');
+    }
+
+    return response.json();
+  },
+
+  async listarTodasEmpresasAtivas(): Promise<Empresa[]> {
+    const response = await fetch(`${API_URL}/empresas`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar empresas');
+    }
+
+    return response.json();
+  },
+
   async atualizarEmpresa(id: string, data: EmpresaCreateRequest): Promise<Empresa> {
     const response = await fetch(`${API_URL}/empresas/${id}`, {
       method: 'PUT',
@@ -291,6 +321,22 @@ export const apiService = {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || 'Erro ao buscar dados da instituição');
+    }
+
+    return response.json();
+  },
+
+  async listarTodasInstituicoesAtivas(): Promise<Instituicao[]> {
+    const response = await fetch(`${API_URL}/instituicoes`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar instituições');
     }
 
     return response.json();
@@ -521,5 +567,535 @@ export const apiService = {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || 'Erro ao remover funcionário');
     }
+  },
+};
+
+// Interfaces de Produto
+export interface Produto {
+  id: string;
+  empresaId: string;
+  nomeProduto: string;
+  descricaoProduto?: string;
+  precoProduto: number;
+  prcntCashback?: number;
+  fotoUrl?: string;
+  categoria?: string;
+  quantidadeEstoque: number;
+  status: boolean;
+  dtCadastro: string;
+  dtInicio?: string;
+  dtFim?: string;
+  nomeFantasiaEmpresa?: string;
+  cnpjEmpresa?: string;
+}
+
+export interface ProdutoRequest {
+  empresaId: string;
+  nomeProduto: string;
+  descricaoProduto?: string;
+  precoProduto: number;
+  prcntCashback?: number;
+  fotoUrl?: string;
+  categoria?: string;
+  quantidadeEstoque: number;
+  status?: boolean;
+  dtInicio?: string;
+  dtFim?: string;
+}
+
+export const produtoService = {
+  async criarProduto(data: ProdutoRequest): Promise<Produto> {
+    const response = await fetch(`${API_URL}/produtos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao criar produto');
+    }
+
+    return response.json();
+  },
+
+  async listarProdutos(): Promise<Produto[]> {
+    const response = await fetch(`${API_URL}/produtos`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar produtos');
+    }
+
+    return response.json();
+  },
+
+  async listarProdutosPorEmpresa(empresaId: string): Promise<Produto[]> {
+    const response = await fetch(`${API_URL}/produtos/empresa/${empresaId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar produtos da empresa');
+    }
+
+    return response.json();
+  },
+
+  async listarProdutosAtivosPorEmpresa(empresaId: string): Promise<Produto[]> {
+    const response = await fetch(`${API_URL}/produtos/empresa/${empresaId}/ativos`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar produtos ativos');
+    }
+
+    return response.json();
+  },
+
+  async buscarProdutoPorId(id: string): Promise<Produto> {
+    const response = await fetch(`${API_URL}/produtos/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao buscar produto');
+    }
+
+    return response.json();
+  },
+
+  async atualizarProduto(id: string, data: ProdutoRequest): Promise<Produto> {
+    const response = await fetch(`${API_URL}/produtos/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao atualizar produto');
+    }
+
+    return response.json();
+  },
+
+  async alterarStatusProduto(id: string, status: boolean): Promise<Produto> {
+    const response = await fetch(`${API_URL}/produtos/${id}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(status),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao alterar status do produto');
+    }
+
+    return response.json();
+  },
+
+  async deletarProduto(id: string): Promise<void> {
+    const response = await fetch(`${API_URL}/produtos/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao deletar produto');
+    }
+  },
+
+  async listarProdutosAtivos(): Promise<Produto[]> {
+    const response = await fetch(`${API_URL}/produtos/ativos`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar produtos ativos');
+    }
+
+    return response.json();
+  },
+
+  async listarProdutosPorCategoria(categoria: string): Promise<Produto[]> {
+    const response = await fetch(`${API_URL}/produtos/categoria/${encodeURIComponent(categoria)}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar produtos por categoria');
+    }
+
+    return response.json();
+  },
+
+  async listarProdutosComMaiorCashback(limite?: number): Promise<Produto[]> {
+    const url = limite 
+      ? `${API_URL}/produtos/maior-cashback?limite=${limite}`
+      : `${API_URL}/produtos/maior-cashback`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar produtos com maior cashback');
+    }
+
+    return response.json();
+  },
+
+  async listarCategorias(): Promise<string[]> {
+    const response = await fetch(`${API_URL}/produtos/categorias`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar categorias');
+    }
+
+    return response.json();
+  },
+};
+
+// Serviço de Upload
+// Interfaces de Doação
+export interface Doacao {
+  id: string;
+  usuarioId: string;
+  instituicaoId: string;
+  valorDoado: number;
+  dtDoacao: string;
+  nomeUsuario?: string;
+  nomeInstituicao?: string;
+}
+
+export interface DoacaoRequest {
+  instituicaoId: string;
+  valorDoado: number;
+}
+
+export const doacaoService = {
+  async listarDoacoesPorInstituicao(instituicaoId: string): Promise<Doacao[]> {
+    const response = await fetch(`${API_URL}/doacoes/instituicao/${instituicaoId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar doações da instituição');
+    }
+    return response.json();
+  },
+
+  async listarDoacoesPorUsuario(usuarioId: string): Promise<Doacao[]> {
+    const response = await fetch(`${API_URL}/doacoes/usuario/${usuarioId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar doações do usuário');
+    }
+    return response.json();
+  },
+
+  async realizarDoacao(usuarioId: string, data: DoacaoRequest): Promise<Doacao> {
+    const response = await fetch(`${API_URL}/doacoes/usuario/${usuarioId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao realizar doação');
+    }
+    return response.json();
+  },
+};
+
+// Interfaces de Carteira
+export interface Carteira {
+  id: string;
+  usuarioId: string;
+  saldoDisponivel: number;
+  saldoBloqueado: number;
+  saldoTotal: number;
+  totalDoado: number;
+  podeSacar: boolean;
+  percentualDoado: number;
+  mensagemValidacao: string;
+}
+
+export interface CarteiraEmpresa {
+  empresaId: string;
+  nomeFantasia: string;
+  totalVendas: number;
+  totalCashbackGerado: number;
+  receitaLiquida: number;
+  totalTransacoes: number;
+  transacoesPendentes: number;
+  transacoesPagas: number;
+  transacoesLiberadas: number;
+  transacoesCanceladas: number;
+}
+
+export interface SaqueRequest {
+  valorSaque: number;
+  chavePix: string;
+}
+
+export const carteiraService = {
+  async consultarCarteira(usuarioId: string): Promise<Carteira> {
+    const response = await fetch(`${API_URL}/carteira/usuario/${usuarioId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao consultar carteira');
+    }
+    return response.json();
+  },
+
+  async consultarCarteiraEmpresa(empresaId: string): Promise<CarteiraEmpresa> {
+    const response = await fetch(`${API_URL}/carteira/empresa/${empresaId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao consultar carteira da empresa');
+    }
+    return response.json();
+  },
+
+  async solicitarSaque(usuarioId: string, data: SaqueRequest): Promise<any> {
+    const response = await fetch(`${API_URL}/carteira/usuario/${usuarioId}/saque`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || errorData.mensagem || 'Erro ao solicitar saque');
+    }
+    return response.json();
+  },
+};
+
+// Interfaces de Transação
+export interface Transacao {
+  id: string;
+  codigoRetirada: string;
+  usuarioId: string;
+  produtoId: string;
+  empresaId: string;
+  valorCompra: number;
+  valorCashback: number;
+  statusTransacao: 'PENDENTE' | 'AGUARDANDO_PAGAMENTO' | 'PAGO' | 'LIBERADO' | 'CANCELADO';
+  pixCode?: string;
+  pixQrcode?: string;
+  pixExpiresAt?: string;
+  dtCompra: string;
+  dtLiberacao?: string;
+  nomeProduto?: string;
+  nomeFantasiaEmpresa?: string;
+  nomeUsuario?: string;
+}
+
+export interface TransacaoRequest {
+  produtoId: string;
+  usuarioId: string;
+}
+
+export const transacaoService = {
+  async criarTransacao(data: TransacaoRequest): Promise<Transacao> {
+    const response = await fetch(`${API_URL}/transacoes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao criar transação');
+    }
+    return response.json();
+  },
+
+  async confirmarPagamento(transacaoId: string): Promise<Transacao> {
+    const response = await fetch(`${API_URL}/transacoes/${transacaoId}/confirmar-pagamento`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao confirmar pagamento');
+    }
+    return response.json();
+  },
+
+  async listarTransacoesPorUsuario(usuarioId: string): Promise<Transacao[]> {
+    const response = await fetch(`${API_URL}/transacoes/usuario/${usuarioId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar transações');
+    }
+    return response.json();
+  },
+
+  async listarTransacoesPorEmpresa(empresaId: string): Promise<Transacao[]> {
+    const response = await fetch(`${API_URL}/transacoes/empresa/${empresaId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar transações da empresa');
+    }
+    return response.json();
+  },
+
+  async buscarPorCodigoRetirada(codigoRetirada: string): Promise<Transacao> {
+    const response = await fetch(`${API_URL}/transacoes/codigo-retirada/${codigoRetirada}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Código de retirada inválido');
+    }
+    return response.json();
+  },
+
+  async liberarProduto(codigoRetirada: string): Promise<Transacao> {
+    const response = await fetch(`${API_URL}/transacoes/liberar-produto/${codigoRetirada}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao liberar produto');
+    }
+    return response.json();
+  },
+};
+
+export const uploadService = {
+  async uploadProdutoImagem(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_URL}/upload/produto`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Erro ao fazer upload da imagem');
+    }
+
+    const data = await response.json();
+    return data.url;
+  },
+
+  async uploadUsuarioImagem(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_URL}/upload/usuario`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Erro ao fazer upload da imagem');
+    }
+
+    const data = await response.json();
+    return data.url;
   },
 };

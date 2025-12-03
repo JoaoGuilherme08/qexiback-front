@@ -1,57 +1,176 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, TrendingUp, Users, Award, DollarSign } from "lucide-react";
+import { Heart, TrendingUp, Users, Award, DollarSign, Loader2 } from "lucide-react";
+import { apiService, doacaoService, Doacao, Instituicao } from "@/services/api";
+import { toast } from "sonner";
+
 const InstitutionDashboard = () => {
   const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("userType");
-    navigate("/");
+  const [isLoading, setIsLoading] = useState(true);
+  const [instituicao, setInstituicao] = useState<Instituicao | null>(null);
+  const [doacoes, setDoacoes] = useState<Doacao[]>([]);
+  const [stats, setStats] = useState({
+    totalDonations: 0,
+    totalDonors: 0,
+    monthlyDonations: 0,
+    averageDonation: 0,
+    previousMonthDonations: 0
+  });
+  const [topDonors, setTopDonors] = useState<Array<{ name: string; amount: number; donations: number }>>([]);
+  const [recentDonations, setRecentDonations] = useState<Doacao[]>([]);
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  const carregarDados = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Obter dados do usuário logado
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const response = await apiService.validateToken(token);
+      if (!response.data) {
+        throw new Error("Não foi possível carregar os dados do usuário");
+      }
+
+      const userData = response.data;
+      const instituicaoId = userData.instituicaoId;
+
+      if (!instituicaoId) {
+        toast.error("Usuário não possui instituição vinculada");
+        navigate("/profile");
+        return;
+      }
+
+      // Buscar dados da instituição
+      const instituicaoData = await apiService.buscarInstituicaoPorId(instituicaoId);
+      setInstituicao(instituicaoData);
+
+      // Buscar doações da instituição
+      const doacoesData = await doacaoService.listarDoacoesPorInstituicao(instituicaoId);
+      setDoacoes(doacoesData);
+
+      // Calcular estatísticas
+      calcularEstatisticas(doacoesData);
+
+      // Calcular top doadores
+      calcularTopDoadores(doacoesData);
+
+      // Ordenar doações recentes (últimas 10)
+      const doacoesRecentes = [...doacoesData]
+        .sort((a, b) => new Date(b.dtDoacao).getTime() - new Date(a.dtDoacao).getTime())
+        .slice(0, 10);
+      setRecentDonations(doacoesRecentes);
+
+    } catch (error: any) {
+      console.error("Erro ao carregar dados:", error);
+      toast.error(error.message || "Erro ao carregar dados do dashboard");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Mock data
-  const stats = {
-    totalDonations: 45680.50,
-    totalDonors: 234,
-    monthlyDonations: 8920.00,
-    averageDonation: 195.22
+  const calcularEstatisticas = (doacoes: Doacao[]) => {
+    const totalDonations = doacoes.reduce((sum, d) => sum + Number(d.valorDoado), 0);
+    
+    // Doadores únicos
+    const doadoresUnicos = new Set(doacoes.map(d => d.usuarioId));
+    const totalDonors = doadoresUnicos.size;
+    
+    // Doação média
+    const averageDonation = totalDonors > 0 ? totalDonations / totalDonors : 0;
+    
+    // Doações deste mês
+    const agora = new Date();
+    const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+    const monthlyDonations = doacoes
+      .filter(d => new Date(d.dtDoacao) >= inicioMes)
+      .reduce((sum, d) => sum + Number(d.valorDoado), 0);
+    
+    // Doações do mês anterior
+    const inicioMesAnterior = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
+    const fimMesAnterior = new Date(agora.getFullYear(), agora.getMonth(), 0);
+    const previousMonthDonations = doacoes
+      .filter(d => {
+        const dataDoacao = new Date(d.dtDoacao);
+        return dataDoacao >= inicioMesAnterior && dataDoacao <= fimMesAnterior;
+      })
+      .reduce((sum, d) => sum + Number(d.valorDoado), 0);
+
+    setStats({
+      totalDonations,
+      totalDonors,
+      monthlyDonations,
+      averageDonation,
+      previousMonthDonations
+    });
   };
-  const topDonors = [{
-    name: "João Silva",
-    amount: 850.00,
-    donations: 15
-  }, {
-    name: "Maria Santos",
-    amount: 720.00,
-    donations: 12
-  }, {
-    name: "Pedro Costa",
-    amount: 650.00,
-    donations: 10
-  }, {
-    name: "Ana Oliveira",
-    amount: 520.00,
-    donations: 8
-  }];
-  const recentDonations = [{
-    id: 1,
-    donor: "João Silva",
-    amount: 50.00,
-    date: "2025-01-10"
-  }, {
-    id: 2,
-    donor: "Maria Santos",
-    amount: 100.00,
-    date: "2025-01-09"
-  }, {
-    id: 3,
-    donor: "Pedro Costa",
-    amount: 75.00,
-    date: "2025-01-09"
-  }];
+
+  const calcularTopDoadores = (doacoes: Doacao[]) => {
+    // Agrupar por usuário
+    const doacoesPorUsuario = new Map<string, { nome: string; total: number; count: number }>();
+    
+    doacoes.forEach(doacao => {
+      const usuarioId = doacao.usuarioId;
+      const nome = doacao.nomeUsuario || "Doador Anônimo";
+      
+      if (!doacoesPorUsuario.has(usuarioId)) {
+        doacoesPorUsuario.set(usuarioId, { nome, total: 0, count: 0 });
+      }
+      
+      const dados = doacoesPorUsuario.get(usuarioId)!;
+      dados.total += Number(doacao.valorDoado);
+      dados.count += 1;
+    });
+
+    // Converter para array e ordenar por total
+    const topDoadores = Array.from(doacoesPorUsuario.values())
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5)
+      .map(d => ({
+        name: d.nome,
+        amount: d.total,
+        donations: d.count
+      }));
+
+    setTopDonors(topDoadores);
+  };
+
+  const calcularVariacaoMensal = () => {
+    if (stats.previousMonthDonations === 0) {
+      return stats.monthlyDonations > 0 ? 100 : 0;
+    }
+    const variacao = ((stats.monthlyDonations - stats.previousMonthDonations) / stats.previousMonthDonations) * 100;
+    return variacao;
+  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar userType="institution" />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+            <p className="text-muted-foreground">Carregando dados do dashboard...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const variacaoMensal = calcularVariacaoMensal();
+
   return <div className="min-h-screen flex flex-col">
       <Navbar userType="institution" />
 
@@ -59,7 +178,9 @@ const InstitutionDashboard = () => {
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Dashboard - Casa do Idoso</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              Dashboard - {instituicao?.nomeInstituicao || "Instituição"}
+            </h1>
             <p className="text-muted-foreground">
               Acompanhe as doações e o impacto da sua instituição
             </p>
@@ -97,10 +218,17 @@ const InstitutionDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm flex items-center gap-1 text-[#00ea7c]">
-                  <TrendingUp className="w-4 h-4" />
-                  +18% vs mês anterior
-                </p>
+                {variacaoMensal !== 0 && (
+                  <p className={`text-sm flex items-center gap-1 ${variacaoMensal >= 0 ? 'text-[#00ea7c]' : 'text-red-500'}`}>
+                    <TrendingUp className={`w-4 h-4 ${variacaoMensal < 0 ? 'rotate-180' : ''}`} />
+                    {variacaoMensal >= 0 ? '+' : ''}{variacaoMensal.toFixed(1)}% vs mês anterior
+                  </p>
+                )}
+                {variacaoMensal === 0 && stats.monthlyDonations === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Nenhuma doação este mês
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -152,33 +280,43 @@ const InstitutionDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {topDonors.map((donor, index) => <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <Avatar>
-                            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
-                              {donor.name.split(" ").map(n => n[0]).join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          {index === 0 && <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
-                              <span className="text-xs">🏆</span>
-                            </div>}
+                {topDonors.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Ainda não há doadores</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {topDonors.map((donor, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="relative">
+                            <Avatar>
+                              <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
+                                {donor.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            {index === 0 && (
+                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <span className="text-xs">🏆</span>
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium">{donor.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {donor.donations} {donor.donations === 1 ? 'doação' : 'doações'}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">{donor.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {donor.donations} doações
+                        <div className="text-right">
+                          <p className="font-semibold text-lg text-[#00ea7c]">
+                            R$ {donor.amount.toFixed(2)}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-lg text-[#00ea7c]">
-                          R$ {donor.amount.toFixed(2)}
-                        </p>
-                      </div>
-                    </div>)}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -189,29 +327,43 @@ const InstitutionDashboard = () => {
                 <CardDescription>Últimas contribuições recebidas</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {recentDonations.map(donation => <div key={donation.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 gradient-secondary rounded-full flex items-center justify-center bg-[#00ea7c]">
-                          <Heart className="w-6 h-6 text-white" />
+                {recentDonations.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Ainda não há doações recebidas</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {recentDonations.map(donation => (
+                      <div key={donation.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 gradient-secondary rounded-full flex items-center justify-center bg-[#00ea7c]">
+                            <Heart className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{donation.nomeUsuario || "Doador Anônimo"}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(donation.dtDoacao).toLocaleDateString("pt-BR", {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">{donation.donor}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(donation.date).toLocaleDateString("pt-BR")}
+                        <div className="text-right">
+                          <p className="font-semibold text-lg text-[#00ea7c]">
+                            R$ {Number(donation.valorDoado).toFixed(2)}
                           </p>
+                          <Badge variant="secondary" className="text-xs">
+                            Cashback
+                          </Badge>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-lg text-[#00ea7c]">
-                          R$ {donation.amount.toFixed(2)}
-                        </p>
-                        <Badge variant="secondary" className="text-xs">
-                          Cashback
-                        </Badge>
-                      </div>
-                    </div>)}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

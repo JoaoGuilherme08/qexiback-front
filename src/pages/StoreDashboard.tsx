@@ -125,6 +125,10 @@ const StoreDashboard = () => {
                 )}
               </div>
               <div className="flex gap-2">
+                <Button onClick={() => navigate("/store/release-product")} variant="default" className="gap-2 bg-[#00ea7c] hover:bg-[#00ea7c]/90 text-white">
+                  <Package className="w-4 h-4" />
+                  Liberar Produto
+                </Button>
                 <Button onClick={() => navigate("/store/products")} variant="default" className="gap-2">
                   <Package className="w-4 h-4" />
                   Visualizar Produtos

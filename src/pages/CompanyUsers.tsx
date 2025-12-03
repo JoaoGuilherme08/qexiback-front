@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputMask from "react-input-mask";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -301,18 +303,23 @@ const CompanyUsers = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-2">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Carregando dados da empresa...</p>
+      <div className="min-h-screen flex flex-col">
+        <Navbar userType="store" />
+        <div className="flex-1 flex items-center justify-center bg-background">
+          <div className="text-center space-y-2">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground">Carregando dados da empresa...</p>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8 space-y-6">
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar userType="store" />
+      <main className="flex-1 container mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-2xl flex items-center gap-2">
@@ -564,6 +571,7 @@ const CompanyUsers = () => {
           </Card>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

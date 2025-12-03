@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { LogIn, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
+import { clearStoredAuth, isStoredTokenExpired, storeTokenExpiry } from "@/utils/auth";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,6 +25,10 @@ const Login = () => {
       const userData = localStorage.getItem("userData");
 
       if (authToken && userData) {
+        if (isStoredTokenExpired()) {
+          clearStoredAuth();
+          return;
+        }
         navigate("/home");
       }
     };
@@ -50,20 +55,23 @@ const Login = () => {
         email: formData.email,
         senha: formData.password
       });
-
       console.log("Resposta do login:", response);
 
       if (response.success && response.data) {
         // Limpar qualquer dados de Auth0 existentes
         localStorage.removeItem("auth0.is.authenticated");
-        
+
+        // Limpar tokens expirados
+        clearStoredAuth();
+
         // Salvar token e dados no localStorage
         localStorage.setItem("authToken", response.data.token);
         localStorage.setItem("userData", JSON.stringify(response.data));
+        storeTokenExpiry(response.data.expiresIn);
 
         // Determinar tipo de usuário e redirecionar automaticamente
         const tipoUsuario = response.data.tipoUsuario;
-        
+
         if (tipoUsuario === "EMPRESA" || tipoUsuario === "ADMINISTRADOR_EMPRESA") {
           localStorage.setItem("userType", "store");
           toast.success(`Bem-vindo, ${response.data.nomeFantasia || response.data.nome}!`);

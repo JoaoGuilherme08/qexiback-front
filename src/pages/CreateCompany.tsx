@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
 import { maskCNPJ, sanitizeDocument, isValidCnpjRegex, validateCNPJ } from "@/utils/validators";
+import InputMask from "react-input-mask";
 
 const defaultFormState = {
   nomeFantasia: "",
@@ -181,33 +184,43 @@ const CreateCompany = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-2">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Carregando informações...</p>
+      <div className="min-h-screen flex flex-col">
+        <Navbar userType="store" />
+        <div className="flex-1 flex items-center justify-center bg-background">
+          <div className="text-center space-y-2">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground">Carregando informações...</p>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (blockedMessage) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="max-w-lg w-full">
-          <CardHeader>
-            <CardTitle>Cadastro indisponível</CardTitle>
-            <CardDescription>{blockedMessage}</CardDescription>
-          </CardHeader>
-          <CardFooter className="flex justify-end">
-            <Button onClick={() => navigate("/profile")}>Ir para o perfil</Button>
-          </CardFooter>
-        </Card>
+      <div className="min-h-screen flex flex-col">
+        <Navbar userType="store" />
+        <div className="flex-1 flex items-center justify-center bg-background p-4">
+          <Card className="max-w-lg w-full">
+            <CardHeader>
+              <CardTitle>Cadastro indisponível</CardTitle>
+              <CardDescription>{blockedMessage}</CardDescription>
+            </CardHeader>
+            <CardFooter className="flex justify-end">
+              <Button onClick={() => navigate("/profile")}>Ir para o perfil</Button>
+            </CardFooter>
+          </Card>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar userType="store" />
+      <div className="flex-1 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl shadow-2xl">
         <CardHeader>
           <CardTitle>Cadastrar empresa</CardTitle>
@@ -258,12 +271,19 @@ const CreateCompany = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="telefone">Telefone</Label>
-                <Input
-                  id="telefone"
+                <InputMask
+                  mask="(99) 99999-9999"
                   value={formData.telefone}
                   onChange={e => handleChange("telefone", e.target.value)}
-                  placeholder="(11) 99999-9999"
-                />
+                >
+                  {(inputProps: any) => (
+                    <Input
+                      {...inputProps}
+                      id="telefone"
+                      placeholder="(11) 99999-9999"
+                    />
+                  )}
+                </InputMask>
               </div>
             </div>
 
@@ -320,6 +340,8 @@ const CreateCompany = () => {
           </form>
         </CardContent>
       </Card>
+    </div>
+    <Footer />
     </div>
   );
 };
