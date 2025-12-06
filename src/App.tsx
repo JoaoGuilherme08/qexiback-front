@@ -21,6 +21,7 @@ import InstitutionDashboard from "./pages/InstitutionDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProductDetails from "./pages/ProductDetails";
 import Checkout from "./pages/Checkout";
+import { MyPurchases } from "./pages/MyPurchases";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+          <Route path="/my-purchases" element={<ProtectedRoute><MyPurchases /></ProtectedRoute>} />
           <Route path="/company/create" element={<ProtectedRoute><CreateCompany /></ProtectedRoute>} />
           <Route path="/company/users" element={<ProtectedRoute><CompanyUsers /></ProtectedRoute>} />
           <Route path="/institution/create" element={<ProtectedRoute><CreateInstitution /></ProtectedRoute>} />

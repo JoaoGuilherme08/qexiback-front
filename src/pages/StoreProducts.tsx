@@ -306,19 +306,20 @@ const StoreProducts = () => {
   };
 
   // Calcula valores do cashback
-  // Agora o productPrice é o valor final (o que o cliente paga)
-  // O cashback é calculado sobre esse valor final
+  // productPrice é o valor final que o cliente paga
+  // Cashback de 10% é INTEIRO para o cliente
+  // Taxa da plataforma de 5% é COBRADA SEPARADAMENTE do cashback
   const calculateCashbackValues = () => {
     const valorFinal = parseFloat(productPrice.replace(",", ".")) || 0; // Valor que o cliente paga
     const cashback = parseFloat(productCashback.replace(",", ".")) || 0;
-    const cashbackAmount = valorFinal * cashback / 100; // Cashback calculado sobre o valor final
-    const platformAmount = valorFinal * platformPercentage / 100; // Taxa da plataforma sobre o valor final
-    const clientAmount = cashbackAmount - platformAmount; // O que o cliente realmente recebe
+    const cashbackAmount = valorFinal * cashback / 100; // Cashback total (vai inteiro para o cliente)
+    const platformAmount = valorFinal * platformPercentage / 100; // Taxa da plataforma (cobrada separadamente)
+    const clientAmount = cashbackAmount; // Cliente recebe TODO o cashback
     return {
       cashbackAmount,
       platformAmount,
-      clientAmount: clientAmount > 0 ? clientAmount : 0,
-      finalPrice: valorFinal, // O valor final é o que foi digitado
+      clientAmount,
+      finalPrice: valorFinal,
       isValid: valorFinal > 0 && cashback > 0
     };
   };
@@ -428,17 +429,13 @@ const StoreProducts = () => {
                           <span className="font-medium">R$ {parseFloat(productPrice.replace(",", ".")).toFixed(2)}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Cashback Total ({productCashback}% sobre o valor final):</span>
-                          <span className="font-medium text-[#00ea7c]">R$ {cashbackValues.cashbackAmount.toFixed(2)}</span>
+                          <span className="text-muted-foreground">Cashback para o Cliente ({productCashback}%):</span>
+                          <span className="font-medium text-[#00ea7c]">R$ {cashbackValues.clientAmount.toFixed(2)}</span>
                         </div>
-                        <div className="border-t border-border pt-2 space-y-2">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">• Cliente recebe:</span>
-                            <span className="text-primary font-medium">R$ {cashbackValues.clientAmount.toFixed(2)}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">• Plataforma ({platformPercentage}%):</span>
-                            <span className="text-muted-foreground">R$ {cashbackValues.platformAmount.toFixed(2)}</span>
+                        <div className="border-t border-border pt-2">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>Taxa da Plataforma ({platformPercentage}% cobrada separadamente):</span>
+                            <span>R$ {cashbackValues.platformAmount.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
@@ -724,17 +721,13 @@ const StoreProducts = () => {
                       <span className="font-medium">R$ {parseFloat(productPrice.replace(",", ".")).toFixed(2)}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Cashback Total ({productCashback}% sobre o valor final):</span>
-                      <span className="font-medium text-[#00ea7c]">R$ {cashbackValues.cashbackAmount.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Cashback para o Cliente ({productCashback}%):</span>
+                      <span className="font-medium text-[#00ea7c]">R$ {cashbackValues.clientAmount.toFixed(2)}</span>
                     </div>
-                    <div className="border-t border-border pt-2 space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">• Cliente recebe:</span>
-                        <span className="text-primary font-medium">R$ {cashbackValues.clientAmount.toFixed(2)}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">• Plataforma ({platformPercentage}%):</span>
-                        <span className="text-muted-foreground">R$ {cashbackValues.platformAmount.toFixed(2)}</span>
+                    <div className="border-t border-border pt-2">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Taxa da Plataforma ({platformPercentage}% cobrada separadamente):</span>
+                        <span>R$ {cashbackValues.platformAmount.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

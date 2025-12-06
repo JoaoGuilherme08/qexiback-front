@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Wallet, Store, Heart, Menu, X, LogOut, User, Users } from "lucide-react";
+import { Wallet, Store, Heart, Menu, X, LogOut, User, Users, ShoppingBag } from "lucide-react";
 import { useState, useEffect } from "react";
 import { clearStoredAuth } from "@/utils/auth";
 
@@ -49,7 +49,28 @@ export const Navbar = ({
   
   // Verificar se usuário está autenticado
   const isAuthenticated = !!localStorage.getItem("authToken");
-  const userLinks = [{
+  
+  // Links base para clientes (CLIENTE)
+  const clientUserLinks = [{
+    path: "/home",
+    label: "Ofertas",
+    icon: Store
+  }, {
+    path: "/my-purchases",
+    label: "Minhas Compras",
+    icon: ShoppingBag
+  }, {
+    path: "/wallet",
+    label: "Carteira",
+    icon: Wallet
+  }, {
+    path: "/profile",
+    label: "Perfil",
+    icon: User
+  }];
+  
+  // Links base para empresas/lojas (sem "Minhas Compras")
+  const baseUserLinks = [{
     path: "/home",
     label: "Ofertas",
     icon: Store
@@ -98,12 +119,17 @@ export const Navbar = ({
 
   const isAdminEmpresa = userTipoUsuario === "ADMINISTRADOR_EMPRESA";
   const isStoreUser = isAdminEmpresa || userTipoUsuario === "EMPRESA" || effectiveUserType === "store";
+  const isCliente = userTipoUsuario === "CLIENTE" || effectiveUserType === "user";
 
-  let links = userLinks;
-  if (effectiveUserType === "institution") {
+  let links = baseUserLinks;
+  
+  // Se for cliente, usar links com "Minhas Compras"
+  if (isCliente && !isStoreUser && effectiveUserType !== "institution") {
+    links = clientUserLinks;
+  } else if (effectiveUserType === "institution") {
     links = institutionLinks;
   } else if (isStoreUser) {
-    links = [...userLinks, ...storeLinks];
+    links = [...baseUserLinks, ...storeLinks];
     if (isAdminEmpresa) {
       links = [...links, ...adminCompanyLinks];
     }

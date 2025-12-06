@@ -75,6 +75,25 @@ export interface CadastroResponse {
   data?: Empresa;
 }
 
+export interface Transacao {
+  id: string;
+  codigoRetirada: string;
+  usuarioId: string;
+  produtoId: string;
+  empresaId: string;
+  valorCompra: number;
+  valorCashback: number;
+  statusTransacao: 'PENDENTE' | 'AGUARDANDO_PAGAMENTO' | 'PAGO' | 'LIBERADO' | 'CANCELADO' | 'EXPIRADO';
+  pixCode?: string;
+  pixQrcode?: string;
+  pixExpiresAt?: string;
+  dtCompra: string;
+  dtLiberacao?: string;
+  nomeProduto?: string;
+  nomeFantasiaEmpresa?: string;
+  nomeUsuario?: string;
+}
+
 export interface Instituicao {
   id: string;
   userId: string;
@@ -950,7 +969,7 @@ export interface Transacao {
   empresaId: string;
   valorCompra: number;
   valorCashback: number;
-  statusTransacao: 'PENDENTE' | 'AGUARDANDO_PAGAMENTO' | 'PAGO' | 'LIBERADO' | 'CANCELADO';
+  statusTransacao: 'PENDENTE' | 'AGUARDANDO_PAGAMENTO' | 'PAGO' | 'LIBERADO' | 'CANCELADO' | 'EXPIRADO';
   pixCode?: string;
   pixQrcode?: string;
   pixExpiresAt?: string;
@@ -1097,5 +1116,20 @@ export const uploadService = {
 
     const data = await response.json();
     return data.url;
+  },
+
+  // Buscar transações do usuário
+  async fetchMinhasCompras(usuarioId: string): Promise<Transacao[]> {
+    const response = await fetch(`${API_URL}/transacoes/usuario/${usuarioId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao buscar compras');
+    }
+
+    return response.json();
   },
 };
