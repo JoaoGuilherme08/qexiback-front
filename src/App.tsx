@@ -23,6 +23,7 @@ import InstitutionApproval from "./pages/InstitutionApproval";
 import ManageCompanies from "./pages/ManageCompanies";
 import ProductDetails from "./pages/ProductDetails";
 import Checkout from "./pages/Checkout";
+import { MyPurchases } from "./pages/MyPurchases";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ const App = () => (
           <Route path="/admin/companies" element={<ProtectedRoute><ManageCompanies /></ProtectedRoute>} />
           <Route path="/offers/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
           <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+          <Route path="/my-purchases" element={<ProtectedRoute><MyPurchases /></ProtectedRoute>} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
