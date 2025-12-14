@@ -44,7 +44,8 @@ const Profile = () => {
     enderecoEmpresa: "",
     cidadeEmpresa: "",
     estadoEmpresa: "",
-    descricaoEmpresa: ""
+    descricaoEmpresa: "",
+    statusEmpresa: false
   });
 
   const [institutionData, setInstitutionData] = useState({
@@ -167,7 +168,8 @@ const Profile = () => {
     enderecoEmpresa: empresa?.enderecoEmpresa || usuarioRef?.address || "",
     cidadeEmpresa: empresa?.cidadeEmpresa || "",
     estadoEmpresa: empresa?.estadoEmpresa || "",
-    descricaoEmpresa: empresa?.descricaoEmpresa || ""
+    descricaoEmpresa: empresa?.descricaoEmpresa || "",
+    statusEmpresa: empresa?.statusEmpresa || false
   });
 
   const mapInstituicaoToState = (instituicao?: Partial<Instituicao>, usuarioRef?: typeof userData) => ({

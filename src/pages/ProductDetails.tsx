@@ -206,24 +206,6 @@ const ProductDetails = () => {
                         R$ {cashbackAmount.toFixed(2)}
                       </span>
                     </div>
-                    
-                    <Separator />
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Quantidade restante da promoção:</span>
-                      <Badge 
-                        variant={
-                          produto.quantidadeEstoque === 0 ? "destructive" :
-                          produto.quantidadeEstoque <= 10 ? "secondary" :
-                          "default"
-                        }
-                        className="text-lg px-3 py-1"
-                      >
-                        {produto.quantidadeEstoque === 0 ? "Esgotado" : 
-                         produto.quantidadeEstoque === 1 ? "1 unidade" :
-                         `${produto.quantidadeEstoque} unidades`}
-                      </Badge>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -259,10 +241,9 @@ const ProductDetails = () => {
                 onClick={handleComprar}
                 size="lg"
                 className="w-full bg-[#00ea7c] text-[#f4efea] hover:bg-[#00ea7c]/90 active:scale-95 transition-all duration-200 font-semibold shadow-medium hover:shadow-strong text-lg h-14"
-                disabled={produto.quantidadeEstoque === 0}
               >
                 <ShoppingBag className="w-5 h-5 mr-2" />
-                {produto.quantidadeEstoque === 0 ? "Produto Indisponível" : "Comprar Agora"}
+                Comprar Agora
               </Button>
 
               {/* Informações Adicionais */}

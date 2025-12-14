@@ -29,11 +29,6 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/my-purchases" className="hover:text-accent transition-colors">
-                  Minhas Compras
-                </Link>
-              </li>
-              <li>
                 <Link to="/wallet" className="hover:text-accent transition-colors">
                   Minha Carteira
                 </Link>

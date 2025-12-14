@@ -16,12 +16,13 @@ import CompanyUsers from "./pages/CompanyUsers";
 import Wallet from "./pages/Wallet";
 import StoreDashboard from "./pages/StoreDashboard";
 import StoreProducts from "./pages/StoreProducts";
-import ReleaseProduct from "./pages/ReleaseProduct";
 import InstitutionDashboard from "./pages/InstitutionDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import WithdrawalApproval from "./pages/WithdrawalApproval";
+import InstitutionApproval from "./pages/InstitutionApproval";
+import ManageCompanies from "./pages/ManageCompanies";
 import ProductDetails from "./pages/ProductDetails";
 import Checkout from "./pages/Checkout";
-import { MyPurchases } from "./pages/MyPurchases";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,15 +43,16 @@ const App = () => (
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
-          <Route path="/my-purchases" element={<ProtectedRoute><MyPurchases /></ProtectedRoute>} />
           <Route path="/company/create" element={<ProtectedRoute><CreateCompany /></ProtectedRoute>} />
           <Route path="/company/users" element={<ProtectedRoute><CompanyUsers /></ProtectedRoute>} />
           <Route path="/institution/create" element={<ProtectedRoute><CreateInstitution /></ProtectedRoute>} />
           <Route path="/store/dashboard" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
           <Route path="/store/products" element={<ProtectedRoute><StoreProducts /></ProtectedRoute>} />
-          <Route path="/store/release-product" element={<ProtectedRoute><ReleaseProduct /></ProtectedRoute>} />
           <Route path="/institution/dashboard" element={<ProtectedRoute><InstitutionDashboard /></ProtectedRoute>} />
           <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/withdrawals" element={<ProtectedRoute><WithdrawalApproval /></ProtectedRoute>} />
+          <Route path="/admin/institutions" element={<ProtectedRoute><InstitutionApproval /></ProtectedRoute>} />
+          <Route path="/admin/companies" element={<ProtectedRoute><ManageCompanies /></ProtectedRoute>} />
           <Route path="/offers/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
           <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
           

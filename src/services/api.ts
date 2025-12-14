@@ -75,25 +75,6 @@ export interface CadastroResponse {
   data?: Empresa;
 }
 
-export interface Transacao {
-  id: string;
-  codigoRetirada: string;
-  usuarioId: string;
-  produtoId: string;
-  empresaId: string;
-  valorCompra: number;
-  valorCashback: number;
-  statusTransacao: 'PENDENTE' | 'AGUARDANDO_PAGAMENTO' | 'PAGO' | 'LIBERADO' | 'CANCELADO' | 'EXPIRADO';
-  pixCode?: string;
-  pixQrcode?: string;
-  pixExpiresAt?: string;
-  dtCompra: string;
-  dtLiberacao?: string;
-  nomeProduto?: string;
-  nomeFantasiaEmpresa?: string;
-  nomeUsuario?: string;
-}
-
 export interface Instituicao {
   id: string;
   userId: string;
@@ -107,6 +88,9 @@ export interface Instituicao {
   telefone?: string;
   chavePix?: string;
   statusInstituicao: boolean;
+  statusAprovacao?: string; // PENDENTE, APROVADA, REJEITADA
+  motivoRejeicao?: string;
+  dtAprovacao?: string;
   dtCadastro: string;
   dtAtualizacao?: string;
   nomeResponsavel?: string;
@@ -174,6 +158,40 @@ export interface LoginResponse {
     cnpjInstituicao?: string;
     chavePixInstituicao?: string;
   };
+}
+
+// ========== INTERFACES DE SAQUE ==========
+export interface Saque {
+  id: string;
+  usuarioId: string;
+  nomeUsuario: string;
+  emailUsuario: string;
+  valorSaque: number;
+  chavePix: string;
+  status: 'PENDENTE' | 'APROVADO' | 'REJEITADO' | 'PAGO' | 'CANCELADO';
+  dtSolicitacao: string;
+  dtAprovacao?: string;
+  dtRejeicao?: string;
+  aprovadoPorId?: string;
+  nomeAprovador?: string;
+  motivoRejeicao?: string;
+  observacoes?: string;
+}
+
+export interface SaqueRequest {
+  valorSaque: number;
+  chavePix: string;
+}
+
+export interface AprovarSaqueRequest {
+  saqueId: string;
+  observacoes?: string;
+}
+
+export interface RejeitarSaqueRequest {
+  saqueId: string;
+  motivoRejeicao: string;
+  observacoes?: string;
 }
 
 export const apiService = {
@@ -374,6 +392,89 @@ export const apiService = {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || 'Erro ao atualizar dados da instituição');
+    }
+
+    return response.json();
+  },
+
+  // Métodos Administrativos de Instituição
+  async listarTodasInstituicoesAdmin(): Promise<Instituicao[]> {
+    const response = await fetch(`${API_URL}/instituicoes/admin/todas`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar instituições');
+    }
+
+    return response.json();
+  },
+
+  async listarInstituicoesPorStatus(status: string): Promise<Instituicao[]> {
+    const response = await fetch(`${API_URL}/instituicoes/admin/status/${status}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar instituições por status');
+    }
+
+    return response.json();
+  },
+
+  async contarInstituicoesPendentes(): Promise<number> {
+    const response = await fetch(`${API_URL}/instituicoes/admin/pendentes/count`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao contar instituições pendentes');
+    }
+
+    return response.json();
+  },
+
+  async aprovarInstituicao(instituicaoId: string, adminId: string): Promise<Instituicao> {
+    const response = await fetch(`${API_URL}/instituicoes/admin/${instituicaoId}/aprovar?adminId=${adminId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao aprovar instituição');
+    }
+
+    return response.json();
+  },
+
+  async rejeitarInstituicao(instituicaoId: string, adminId: string, motivo: string): Promise<Instituicao> {
+    const response = await fetch(`${API_URL}/instituicoes/admin/${instituicaoId}/rejeitar?adminId=${adminId}&motivo=${encodeURIComponent(motivo)}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao rejeitar instituição');
     }
 
     return response.json();
@@ -599,7 +700,6 @@ export interface Produto {
   prcntCashback?: number;
   fotoUrl?: string;
   categoria?: string;
-  quantidadeEstoque: number;
   status: boolean;
   dtCadastro: string;
   dtInicio?: string;
@@ -616,7 +716,6 @@ export interface ProdutoRequest {
   prcntCashback?: number;
   fotoUrl?: string;
   categoria?: string;
-  quantidadeEstoque: number;
   status?: boolean;
   dtInicio?: string;
   dtFim?: string;
@@ -896,19 +995,6 @@ export interface Carteira {
   mensagemValidacao: string;
 }
 
-export interface CarteiraEmpresa {
-  empresaId: string;
-  nomeFantasia: string;
-  totalVendas: number;
-  totalCashbackGerado: number;
-  receitaLiquida: number;
-  totalTransacoes: number;
-  transacoesPendentes: number;
-  transacoesPagas: number;
-  transacoesLiberadas: number;
-  transacoesCanceladas: number;
-}
-
 export interface SaqueRequest {
   valorSaque: number;
   chavePix: string;
@@ -925,20 +1011,6 @@ export const carteiraService = {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || 'Erro ao consultar carteira');
-    }
-    return response.json();
-  },
-
-  async consultarCarteiraEmpresa(empresaId: string): Promise<CarteiraEmpresa> {
-    const response = await fetch(`${API_URL}/carteira/empresa/${empresaId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Erro ao consultar carteira da empresa');
     }
     return response.json();
   },
@@ -969,7 +1041,7 @@ export interface Transacao {
   empresaId: string;
   valorCompra: number;
   valorCashback: number;
-  statusTransacao: 'PENDENTE' | 'AGUARDANDO_PAGAMENTO' | 'PAGO' | 'LIBERADO' | 'CANCELADO' | 'EXPIRADO';
+  statusTransacao: 'PENDENTE' | 'AGUARDANDO_PAGAMENTO' | 'PAGO' | 'LIBERADO' | 'CANCELADO';
   pixCode?: string;
   pixQrcode?: string;
   pixExpiresAt?: string;
@@ -1030,49 +1102,6 @@ export const transacaoService = {
     }
     return response.json();
   },
-
-  async listarTransacoesPorEmpresa(empresaId: string): Promise<Transacao[]> {
-    const response = await fetch(`${API_URL}/transacoes/empresa/${empresaId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Erro ao listar transações da empresa');
-    }
-    return response.json();
-  },
-
-  async buscarPorCodigoRetirada(codigoRetirada: string): Promise<Transacao> {
-    const response = await fetch(`${API_URL}/transacoes/codigo-retirada/${codigoRetirada}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Código de retirada inválido');
-    }
-    return response.json();
-  },
-
-  async liberarProduto(codigoRetirada: string): Promise<Transacao> {
-    const response = await fetch(`${API_URL}/transacoes/liberar-produto/${codigoRetirada}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Erro ao liberar produto');
-    }
-    return response.json();
-  },
 };
 
 export const uploadService = {
@@ -1117,19 +1146,149 @@ export const uploadService = {
     const data = await response.json();
     return data.url;
   },
+};
 
-  // Buscar transações do usuário
-  async fetchMinhasCompras(usuarioId: string): Promise<Transacao[]> {
-    const response = await fetch(`${API_URL}/transacoes/usuario/${usuarioId}`, {
+// ========== SERVIÇO DE SAQUES ==========
+export const saqueService = {
+  /**
+   * Solicitar um novo saque
+   */
+  async solicitarSaque(usuarioId: string, request: SaqueRequest): Promise<Saque> {
+    const response = await fetch(`${API_URL}/saques/usuario/${usuarioId}`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao solicitar saque');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Listar saques do usuário
+   */
+  async listarSaquesPorUsuario(usuarioId: string): Promise<Saque[]> {
+    const response = await fetch(`${API_URL}/saques/usuario/${usuarioId}`, {
+      headers: {
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
       },
     });
 
     if (!response.ok) {
-      throw new Error('Erro ao buscar compras');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar saques');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Listar todos os saques (ADMIN)
+   */
+  async listarTodosSaques(): Promise<Saque[]> {
+    const response = await fetch(`${API_URL}/saques/admin/todos`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar saques');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Listar saques pendentes (ADMIN)
+   */
+  async listarSaquesPendentes(): Promise<Saque[]> {
+    const response = await fetch(`${API_URL}/saques/admin/pendentes`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao listar saques pendentes');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Contar saques pendentes (ADMIN)
+   */
+  async contarSaquesPendentes(): Promise<number> {
+    const response = await fetch(`${API_URL}/saques/admin/pendentes/count`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao contar saques pendentes');
+    }
+
+    const data = await response.json();
+    return data.count;
+  },
+
+  /**
+   * Aprovar saque (ADMIN)
+   */
+  async aprovarSaque(adminId: string, request: AprovarSaqueRequest): Promise<Saque> {
+    const response = await fetch(`${API_URL}/saques/admin/${adminId}/aprovar`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao aprovar saque');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Rejeitar saque (ADMIN)
+   */
+  async rejeitarSaque(adminId: string, request: RejeitarSaqueRequest): Promise<Saque> {
+    const response = await fetch(`${API_URL}/saques/admin/${adminId}/rejeitar`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Erro ao rejeitar saque');
     }
 
     return response.json();
   },
 };
+
+

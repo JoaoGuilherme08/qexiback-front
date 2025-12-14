@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
+import { PasswordStrengthMeter } from "@/components/ui/password-strength-meter";
 
 const RegisterCliente = () => {
   const navigate = useNavigate();
@@ -17,6 +18,13 @@ const RegisterCliente = () => {
     confirmSenha: "",
   });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+
+  const handlePasswordValidation = useCallback((isValid: boolean, errors: string[]) => {
+    setIsPasswordValid(isValid);
+    setPasswordErrors(errors);
+  }, []);
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,8 +34,8 @@ const RegisterCliente = () => {
       return;
     }
 
-    if (formData.senha.length < 8) {
-      toast.error("A senha deve ter pelo menos 8 caracteres");
+    if (!isPasswordValid) {
+      toast.error("A senha não atende aos requisitos de segurança: " + passwordErrors.join(", "));
       return;
     }
 
@@ -120,10 +128,15 @@ const RegisterCliente = () => {
                   id="senha"
                   name="senha"
                   type="password"
-                  placeholder="Mínimo 8 caracteres"
+                  placeholder="Digite uma senha forte"
                   value={formData.senha}
                   onChange={handleChange}
                   required
+                />
+                <PasswordStrengthMeter 
+                  password={formData.senha} 
+                  onValidationChange={handlePasswordValidation}
+                  className="mt-2"
                 />
               </div>
               <div className="space-y-2">

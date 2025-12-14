@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,10 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
+import { PasswordStrengthMeter } from "@/components/ui/password-strength-meter";
 
 const Register = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,6 +28,11 @@ const Register = () => {
     }));
   };
 
+  const handlePasswordValidation = useCallback((isValid: boolean, errors: string[]) => {
+    setIsPasswordValid(isValid);
+    setPasswordErrors(errors);
+  }, []);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -38,8 +46,8 @@ const Register = () => {
       return;
     }
 
-    if (formData.password.length < 6) {
-      toast.error("A senha deve ter pelo menos 6 caracteres.");
+    if (!isPasswordValid) {
+      toast.error("A senha não atende aos requisitos de segurança: " + passwordErrors.join(", "));
       return;
     }
 
@@ -118,8 +126,13 @@ const Register = () => {
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Digite uma senha forte"
                   required
+                />
+                <PasswordStrengthMeter 
+                  password={formData.password} 
+                  onValidationChange={handlePasswordValidation}
+                  className="mt-2"
                 />
               </div>
 

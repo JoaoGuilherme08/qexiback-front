@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ArrowLeft, Copy, MessageCircle, CheckCircle2, Loader2, AlertTriangle, AlertCircle, CheckCircle, XCircle, Package } from "lucide-react";
+import { ArrowLeft, Copy, MessageCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { produtoService, Produto, apiService, transacaoService, Transacao } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
@@ -78,8 +78,10 @@ const Checkout = () => {
   
   const pixCode = transacao?.pixCode || "";
   const pixQrcode = transacao?.pixQrcode || "";
-  // Código de retirada já vem formatado como 8 caracteres alfanuméricos
-  const pickupCode = transacao?.codigoRetirada?.toUpperCase() || "";
+  // Formatar código de retirada (UUID) para exibição mais legível
+  const pickupCode = transacao?.codigoRetirada 
+    ? transacao.codigoRetirada.replace(/-/g, '').substring(0, 8).toUpperCase() 
+    : "";
 
   const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
@@ -277,70 +279,6 @@ const Checkout = () => {
                         <span className="font-bold">R$ {cashbackAmount.toFixed(2)}</span>
                       </div>
                     </div>
-
-                    <Separator />
-
-                    {/* Alerta de Estoque */}
-                    <Card className={
-                      produto.quantidadeEstoque === 0 ? "border-2 border-red-500 bg-gradient-to-br from-red-50 to-red-100" :
-                      produto.quantidadeEstoque <= 5 ? "border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100" :
-                      produto.quantidadeEstoque <= 10 ? "border-2 border-amber-500 bg-gradient-to-br from-amber-50 to-amber-100" :
-                      "border-2 border-green-500 bg-gradient-to-br from-green-50 to-green-100"
-                    }>
-                      <CardContent className="pt-4 pb-4">
-                        <div className="flex items-start gap-4">
-                          {produto.quantidadeEstoque === 0 ? (
-                            <>
-                              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-500 flex items-center justify-center">
-                                <XCircle className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="font-bold text-red-900 text-base mb-1">Produto Indisponível</h4>
-                                <p className="text-sm text-red-700 leading-relaxed">
-                                  Este produto está temporariamente esgotado. Entre em contato com a loja para mais informações sobre disponibilidade.
-                                </p>
-                              </div>
-                            </>
-                          ) : produto.quantidadeEstoque <= 5 ? (
-                            <>
-                              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center animate-pulse">
-                                <AlertTriangle className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="font-bold text-orange-900 text-base mb-1">Estoque Crítico</h4>
-                                <p className="text-sm text-orange-700 leading-relaxed">
-                                  Restam apenas <span className="font-bold text-base px-2 py-0.5 bg-orange-200 rounded">{produto.quantidadeEstoque}</span> {produto.quantidadeEstoque === 1 ? 'unidade disponível' : 'unidades disponíveis'}. Finalize sua compra rapidamente para garantir o produto.
-                                </p>
-                              </div>
-                            </>
-                          ) : produto.quantidadeEstoque <= 10 ? (
-                            <>
-                              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center">
-                                <AlertCircle className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="font-bold text-amber-900 text-base mb-1">Estoque Limitado</h4>
-                                <p className="text-sm text-amber-700 leading-relaxed">
-                                  Disponível em quantidade limitada. Atualmente temos <span className="font-bold text-base px-2 py-0.5 bg-amber-200 rounded">{produto.quantidadeEstoque}</span> unidades em estoque.
-                                </p>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
-                                <CheckCircle className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="font-bold text-green-900 text-base mb-1">Disponível para Entrega</h4>
-                                <p className="text-sm text-green-700 leading-relaxed">
-                                  Produto em estoque. <span className="font-semibold">{produto.quantidadeEstoque}</span> unidades disponíveis para compra imediata.
-                                </p>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
                   </CardContent>
                 </Card>
 
@@ -408,56 +346,6 @@ const Checkout = () => {
                             )}
                           </Button>
                         )}
-
-                        {/* Código de Retirada - após pagamento confirmado */}
-                        {transacao.statusTransacao === "PAGO" && pickupCode && (
-                          <div className="border-2 border-[#00ea7c] p-6 rounded-lg bg-gradient-to-br from-[#00ea7c]/10 to-[#00ea7c]/5">
-                            <div className="text-center space-y-4">
-                              <div className="flex items-center justify-center gap-2">
-                                <CheckCircle2 className="w-5 h-5 text-[#00ea7c]" />
-                                <p className="font-semibold text-lg">Código de Retirada</p>
-                              </div>
-                              
-                              {/* QR Code do Código de Retirada */}
-                              <div className="bg-white p-4 rounded-lg inline-block">
-                                <QRCodeSVG value={transacao.codigoRetirada} size={180} />
-                              </div>
-                              
-                              {/* Código em texto */}
-                              <div className="bg-white p-4 rounded-lg border-2 border-[#00ea7c]">
-                                <p className="text-4xl font-bold tracking-widest text-[#281F56] font-mono">
-                                  {pickupCode}
-                                </p>
-                              </div>
-                              
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="gap-2 bg-[#00EA7C] text-white hover:bg-[#00EA7C]/90 border-none active:scale-95 transition-all duration-200 font-semibold w-full"
-                                onClick={() => copyToClipboard(pickupCode, "Código de retirada")}
-                              >
-                                <Copy className="w-4 h-4" />
-                                Copiar Código
-                              </Button>
-                              
-                              <p className="text-xs text-muted-foreground">
-                                📦 Apresente este código na loja para retirar seu produto
-                              </p>
-                              
-                              {produto.nomeFantasiaEmpresa && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="gap-2 w-full border-green-500 text-green-700 hover:bg-green-50"
-                                  onClick={contactWhatsApp}
-                                >
-                                  <MessageCircle className="w-4 h-4" />
-                                  Contatar {produto.nomeFantasiaEmpresa}
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        )}
                       </>
                     )}
 
@@ -482,7 +370,7 @@ const Checkout = () => {
                     {!transacao ? (
                       <Button
                         onClick={handleFinalizarCompra}
-                        disabled={isCreatingTransaction || !usuarioId || produto.quantidadeEstoque === 0}
+                        disabled={isCreatingTransaction || !usuarioId}
                         className="w-full bg-[#00ea7c] text-[#f4efea] hover:bg-[#00ea7c]/90 active:scale-95 transition-all duration-200 font-semibold shadow-medium hover:shadow-strong h-12"
                       >
                         {isCreatingTransaction ? (
@@ -490,8 +378,6 @@ const Checkout = () => {
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             Processando...
                           </>
-                        ) : produto.quantidadeEstoque === 0 ? (
-                          "Produto Indisponível"
                         ) : (
                           "Finalizar Compra"
                         )}

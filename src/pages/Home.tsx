@@ -466,20 +466,6 @@ const Home = () => {
                                     {produto.prcntCashback?.toFixed(0) || 0}% Cashback
                                   </Badge>
                                 </div>
-                                {produto.quantidadeEstoque <= 10 && produto.quantidadeEstoque > 0 && (
-                                  <div className="absolute top-3 left-3 animate-in fade-in zoom-in duration-300">
-                                    <Badge variant="secondary" className="font-bold text-xs px-2 py-1">
-                                      Últimas {produto.quantidadeEstoque} un
-                                    </Badge>
-                                  </div>
-                                )}
-                                {produto.quantidadeEstoque === 0 && (
-                                  <div className="absolute top-3 left-3 animate-in fade-in zoom-in duration-300">
-                                    <Badge variant="destructive" className="font-bold text-xs px-2 py-1">
-                                      Esgotado
-                                    </Badge>
-                                  </div>
-                                )}
                               </div>
                               <CardHeader onClick={() => navigate(`/checkout/${produto.id}`)}>
                                 <div className="space-y-3">
@@ -522,23 +508,6 @@ const Home = () => {
                                       </p>
                                     </div>
                                   </div>
-                                  <div className="mt-3 pt-3 border-t">
-                                    <div className="flex items-center justify-between">
-                                      <p className="text-sm text-muted-foreground">Restante:</p>
-                                      <Badge 
-                                        variant={
-                                          produto.quantidadeEstoque === 0 ? "destructive" :
-                                          produto.quantidadeEstoque <= 10 ? "secondary" :
-                                          "default"
-                                        }
-                                        className="text-xs"
-                                      >
-                                        {produto.quantidadeEstoque === 0 ? "Esgotado" : 
-                                         produto.quantidadeEstoque === 1 ? "1 un" :
-                                         `${produto.quantidadeEstoque} un`}
-                                      </Badge>
-                                    </div>
-                                  </div>
                                 </div>
                               </CardHeader>
                               <CardContent onClick={() => navigate(`/checkout/${produto.id}`)}>
@@ -554,10 +523,8 @@ const Home = () => {
                                     navigate(`/checkout/${produto.id}`);
                                   }} 
                                   className="w-full bg-[#00ea7c] text-[#f4efea] hover:bg-[#00ea7c]/90 active:scale-95 transition-all duration-200 font-semibold shadow-soft hover:shadow-medium"
-                                  disabled={produto.quantidadeEstoque === 0}
                                 >
-                                  <ShoppingBag className="w-4 h-4 mr-2" />
-                                  {produto.quantidadeEstoque === 0 ? "Indisponível" : "Comprar"}
+                                  Comprar
                                 </Button>
                               </CardFooter>
                             </Card>
@@ -654,20 +621,6 @@ const Home = () => {
                                         {produto.prcntCashback?.toFixed(0) || 0}% Cashback
                                       </Badge>
                                     </div>
-                                    {produto.quantidadeEstoque <= 10 && produto.quantidadeEstoque > 0 && (
-                                      <div className="absolute top-3 left-3 animate-in fade-in zoom-in duration-300">
-                                        <Badge variant="secondary" className="font-bold text-xs px-2 py-1">
-                                          Últimas {produto.quantidadeEstoque} un
-                                        </Badge>
-                                      </div>
-                                    )}
-                                    {produto.quantidadeEstoque === 0 && (
-                                      <div className="absolute top-3 left-3 animate-in fade-in zoom-in duration-300">
-                                        <Badge variant="destructive" className="font-bold text-xs px-2 py-1">
-                                          Esgotado
-                                        </Badge>
-                                      </div>
-                                    )}
                                   </div>
                                   <CardHeader onClick={() => navigate(`/checkout/${produto.id}`)}>
                                     <CardTitle className="text-lg">{produto.nomeProduto}</CardTitle>
@@ -688,21 +641,6 @@ const Home = () => {
                                         </p>
                                       </div>
                                     </div>
-                                    <div className="mt-3 pt-3 border-t flex items-center justify-between">
-                                      <p className="text-sm text-muted-foreground">Restante:</p>
-                                      <Badge 
-                                        variant={
-                                          produto.quantidadeEstoque === 0 ? "destructive" :
-                                          produto.quantidadeEstoque <= 10 ? "secondary" :
-                                          "default"
-                                        }
-                                        className="text-xs"
-                                      >
-                                        {produto.quantidadeEstoque === 0 ? "Esgotado" : 
-                                         produto.quantidadeEstoque === 1 ? "1 un" :
-                                         `${produto.quantidadeEstoque} un`}
-                                      </Badge>
-                                    </div>
                                   </CardContent>
                                   <CardFooter>
                                     <Button 
@@ -712,10 +650,8 @@ const Home = () => {
                                         navigate(`/checkout/${produto.id}`);
                                       }} 
                                       className="w-full bg-[#00ea7c] text-[#f4efea] hover:bg-[#00ea7c]/90 active:scale-95 transition-all duration-200 font-semibold shadow-soft hover:shadow-medium"
-                                      disabled={produto.quantidadeEstoque === 0}
                                     >
-                                      <ShoppingBag className="w-4 h-4 mr-2" />
-                                      {produto.quantidadeEstoque === 0 ? "Indisponível" : "Comprar"}
+                                      Comprar
                                     </Button>
                                   </CardFooter>
                                 </Card>
@@ -770,20 +706,6 @@ const Home = () => {
                                     {produto.prcntCashback?.toFixed(0) || 0}% Cashback
                                   </Badge>
                                 </div>
-                                {produto.quantidadeEstoque <= 10 && produto.quantidadeEstoque > 0 && (
-                                  <div className="absolute top-3 left-3 animate-in fade-in zoom-in duration-300">
-                                    <Badge variant="secondary" className="font-bold text-xs px-2 py-1">
-                                      Últimas {produto.quantidadeEstoque} un
-                                    </Badge>
-                                  </div>
-                                )}
-                                {produto.quantidadeEstoque === 0 && (
-                                  <div className="absolute top-3 left-3 animate-in fade-in zoom-in duration-300">
-                                    <Badge variant="destructive" className="font-bold text-xs px-2 py-1">
-                                      Esgotado
-                                    </Badge>
-                                  </div>
-                                )}
                               </div>
                               <CardHeader onClick={() => navigate(`/checkout/${produto.id}`)}>
                                 <div className="space-y-3">
@@ -826,23 +748,6 @@ const Home = () => {
                                       </p>
                                     </div>
                                   </div>
-                                  <div className="mt-3 pt-3 border-t">
-                                    <div className="flex items-center justify-between">
-                                      <p className="text-sm text-muted-foreground">Restante:</p>
-                                      <Badge 
-                                        variant={
-                                          produto.quantidadeEstoque === 0 ? "destructive" :
-                                          produto.quantidadeEstoque <= 10 ? "secondary" :
-                                          "default"
-                                        }
-                                        className="text-xs"
-                                      >
-                                        {produto.quantidadeEstoque === 0 ? "Esgotado" : 
-                                         produto.quantidadeEstoque === 1 ? "1 un" :
-                                         `${produto.quantidadeEstoque} un`}
-                                      </Badge>
-                                    </div>
-                                  </div>
                                 </div>
                               </CardHeader>
                               <CardContent onClick={() => navigate(`/checkout/${produto.id}`)}>
@@ -858,10 +763,8 @@ const Home = () => {
                                     navigate(`/checkout/${produto.id}`);
                                   }} 
                                   className="w-full bg-[#00ea7c] text-[#f4efea] hover:bg-[#00ea7c]/90 active:scale-95 transition-all duration-200 font-semibold shadow-soft hover:shadow-medium"
-                                  disabled={produto.quantidadeEstoque === 0}
                                 >
-                                  <ShoppingBag className="w-4 h-4 mr-2" />
-                                  {produto.quantidadeEstoque === 0 ? "Indisponível" : "Comprar"}
+                                  Comprar
                                 </Button>
                               </CardFooter>
                             </Card>

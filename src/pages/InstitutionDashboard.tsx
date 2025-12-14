@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, TrendingUp, Users, Award, DollarSign, Loader2 } from "lucide-react";
+import { Heart, TrendingUp, Users, Award, DollarSign, Loader2, AlertCircle, Clock, XCircle } from "lucide-react";
 import { apiService, doacaoService, Doacao, Instituicao } from "@/services/api";
 import { toast } from "sonner";
 
@@ -185,6 +185,57 @@ const InstitutionDashboard = () => {
               Acompanhe as doações e o impacto da sua instituição
             </p>
           </div>
+
+          {/* Aviso de Status de Aprovação */}
+          {instituicao?.statusAprovacao === 'PENDENTE' && (
+            <Card className="mb-6 border-amber-500 bg-amber-50">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-amber-900 mb-1">
+                      Aguardando Aprovação
+                    </h3>
+                    <p className="text-sm text-amber-700">
+                      Sua instituição está em análise pelo administrador da plataforma. 
+                      Você poderá receber doações assim que sua instituição for aprovada.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {instituicao?.statusAprovacao === 'REJEITADA' && (
+            <Card className="mb-6 border-red-500 bg-red-50">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                    <XCircle className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-red-900 mb-1">
+                      Cadastro Rejeitado
+                    </h3>
+                    <p className="text-sm text-red-700 mb-2">
+                      Infelizmente sua instituição não foi aprovada pela administração.
+                    </p>
+                    {instituicao.motivoRejeicao && (
+                      <div className="mt-2 p-3 bg-red-100 rounded-md">
+                        <p className="text-sm font-medium text-red-900">Motivo:</p>
+                        <p className="text-sm text-red-800 mt-1">{instituicao.motivoRejeicao}</p>
+                      </div>
+                    )}
+                    <p className="text-xs text-red-600 mt-3">
+                      Entre em contato com o suporte para mais informações.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Stats Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

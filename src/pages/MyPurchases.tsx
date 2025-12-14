@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ShoppingBag, Package, Clock, CheckCircle, XCircle, AlertCircle, Copy, Check, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
-import { uploadService, type Transacao } from "@/services/api";
+import { transacaoService, type Transacao } from "@/services/api";
 import { Button } from "@/components/ui/button";
 
 const ITEMS_PER_PAGE = 10;
@@ -66,7 +66,7 @@ export const MyPurchases = () => {
       }
       
       console.log("Buscando compras para usuarioId:", usuarioId); // Debug
-      const transacoes = await uploadService.fetchMinhasCompras(usuarioId);
+      const transacoes = await transacaoService.listarTransacoesPorUsuario(usuarioId);
       // Ordenar por data de compra (mais recentes primeiro)
       const sortedTransacoes = transacoes.sort((a, b) => 
         new Date(b.dtCompra).getTime() - new Date(a.dtCompra).getTime()

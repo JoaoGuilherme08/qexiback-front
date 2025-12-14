@@ -1,11 +1,20 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Wallet, Store, Heart, Menu, X, LogOut, User, Users, ShoppingBag } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Wallet, Store, Heart, Menu, X, LogOut, User, Users, ShoppingBag, HandCoins, Building2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { clearStoredAuth } from "@/utils/auth";
+import { saqueService } from "@/services/api";
 
 interface NavbarProps {
   userType?: "user" | "store" | "institution" | null;
+}
+
+interface NavLink {
+  path: string;
+  label: string;
+  icon: any;
+  badge?: number;
 }
 
 export const Navbar = ({
@@ -16,6 +25,7 @@ export const Navbar = ({
   const [userTipoUsuario, setUserTipoUsuario] = useState<string | null>(null);
   const [storedUserType, setStoredUserType] = useState<NavbarProps["userType"]>(null);
   const [hasEmpresa, setHasEmpresa] = useState(false);
+  const [pendingWithdrawalsCount, setPendingWithdrawalsCount] = useState(0);
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
   
@@ -30,11 +40,37 @@ export const Navbar = ({
         if (parsed.empresaId || parsed.tipoUsuario === "EMPRESA" || parsed.tipoUsuario === "ADMINISTRADOR_EMPRESA" || parsed.tipoUsuario === "MEMBRO_EMPRESA") {
           setHasEmpresa(true);
         }
+
+        // Se for ADMIN, buscar contagem de saques pendentes
+        if (parsed.tipoUsuario === "ADMIN") {
+          loadPendingWithdrawalsCount();
+        }
       } catch (error) {
         console.error("Erro ao parsear userData:", error);
       }
     }
   }, []);
+
+  // Carregar contagem de saques pendentes
+  const loadPendingWithdrawalsCount = async () => {
+    try {
+      const count = await saqueService.contarSaquesPendentes();
+      setPendingWithdrawalsCount(count);
+    } catch (error) {
+      console.error("Erro ao carregar contagem de saques pendentes:", error);
+    }
+  };
+
+  // Atualizar contagem a cada 30 segundos se for ADMIN
+  useEffect(() => {
+    if (userTipoUsuario === "ADMIN") {
+      const interval = setInterval(() => {
+        loadPendingWithdrawalsCount();
+      }, 30000); // 30 segundos
+
+      return () => clearInterval(interval);
+    }
+  }, [userTipoUsuario]);
 
   useEffect(() => {
     const savedUserType = localStorage.getItem("userType");
@@ -51,7 +87,7 @@ export const Navbar = ({
   const isAuthenticated = !!localStorage.getItem("authToken");
   
   // Links base para clientes (CLIENTE)
-  const clientUserLinks = [{
+  const clientUserLinks: NavLink[] = [{
     path: "/home",
     label: "Ofertas",
     icon: Store
@@ -70,7 +106,7 @@ export const Navbar = ({
   }];
   
   // Links base para empresas/lojas (sem "Minhas Compras")
-  const baseUserLinks = [{
+  const baseUserLinks: NavLink[] = [{
     path: "/home",
     label: "Ofertas",
     icon: Store
@@ -84,7 +120,7 @@ export const Navbar = ({
     icon: User
   }];
   
-  const storeLinks = [{
+  const storeLinks: NavLink[] = [{
     path: "/store/dashboard",
     label: "Dashboard Loja",
     icon: Store
@@ -93,7 +129,7 @@ export const Navbar = ({
     label: "Meus Produtos",
     icon: Store
   }];
-  const adminCompanyLinks = !hasEmpresa ? [{
+  const adminCompanyLinks: NavLink[] = !hasEmpresa ? [{
     path: "/company/create",
     label: "Cadastrar Empresa",
     icon: Store
@@ -107,7 +143,7 @@ export const Navbar = ({
     icon: Users
   }];
   
-  const institutionLinks = [{
+  const institutionLinks: NavLink[] = [{
     path: "/institution/dashboard",
     label: "Dashboard",
     icon: Heart
@@ -117,18 +153,49 @@ export const Navbar = ({
     icon: User
   }];
 
+  // Links para ADMIN da plataforma (apenas Painel Admin e Perfil)
+  const adminPlatformLinks: NavLink[] = [{
+    path: "/admin/dashboard",
+    label: "Painel Admin",
+    icon: Users
+  }, {
+    path: "/admin/withdrawals",
+    label: "Aprovar Saques",
+    icon: HandCoins,
+    badge: pendingWithdrawalsCount > 0 ? pendingWithdrawalsCount : undefined
+  }, {
+    path: "/admin/institutions",
+    label: "Aprovar Instituições",
+    icon: Heart
+  }, {
+    path: "/admin/companies",
+    label: "Gerenciar Empresas",
+    icon: Building2
+  }, {
+    path: "/profile",
+    label: "Perfil",
+    icon: User
+  }];
+
   const isAdminEmpresa = userTipoUsuario === "ADMINISTRADOR_EMPRESA";
   const isStoreUser = isAdminEmpresa || userTipoUsuario === "EMPRESA" || effectiveUserType === "store";
   const isCliente = userTipoUsuario === "CLIENTE" || effectiveUserType === "user";
+  const isAdmin = userTipoUsuario === "ADMIN";
 
   let links = baseUserLinks;
   
-  // Se for cliente, usar links com "Minhas Compras"
-  if (isCliente && !isStoreUser && effectiveUserType !== "institution") {
+  // Definir links baseado no tipo de usuário
+  if (isAdmin) {
+    // ADMIN da plataforma - usa links específicos SEM "Minhas Compras"
+    links = adminPlatformLinks;
+  } else if (isCliente && !isStoreUser && effectiveUserType !== "institution") {
+    // Cliente comum - usa links COM "Minhas Compras"
     links = clientUserLinks;
   } else if (effectiveUserType === "institution") {
+    // Instituição
     links = institutionLinks;
   } else if (isStoreUser) {
+    // Empresa/Loja
     links = [...baseUserLinks, ...storeLinks];
     if (isAdminEmpresa) {
       links = [...links, ...adminCompanyLinks];
@@ -154,9 +221,14 @@ export const Navbar = ({
           {/* Desktop Navigation */}
           {effectiveUserType && <div className="hidden md:flex items-center gap-1">
               {links.map(link => <Link key={link.path} to={link.path}>
-                  <Button variant={isActive(link.path) ? "default" : "ghost"} size="sm" className="gap-2 bg-[#f4efea] text-[#281f56]">
+                  <Button variant={isActive(link.path) ? "default" : "ghost"} size="sm" className="gap-2 bg-[#f4efea] text-[#281f56] relative">
                     <link.icon className="w-4 h-4" />
                     {link.label}
+                    {link.badge && link.badge > 0 && (
+                      <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                        {link.badge}
+                      </Badge>
+                    )}
                   </Button>
                 </Link>)}
             </div>}
@@ -190,9 +262,14 @@ export const Navbar = ({
         {mobileMenuOpen && <div className="md:hidden py-4 border-t border-border animate-in slide-in-from-top">
             {effectiveUserType && <div className="flex flex-col gap-2 mb-4">
                 {links.map(link => <Link key={link.path} to={link.path} onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant={isActive(link.path) ? "default" : "ghost"} className="w-full justify-start gap-2" size="sm">
+                    <Button variant={isActive(link.path) ? "default" : "ghost"} className="w-full justify-start gap-2 relative" size="sm">
                       <link.icon className="w-4 h-4" />
                       {link.label}
+                      {link.badge && link.badge > 0 && (
+                        <Badge variant="destructive" className="ml-auto h-5 w-5 flex items-center justify-center p-0 text-xs">
+                          {link.badge}
+                        </Badge>
+                      )}
                     </Button>
                   </Link>)}
               </div>}

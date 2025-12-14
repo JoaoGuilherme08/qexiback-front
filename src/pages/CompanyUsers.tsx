@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputMask from "react-input-mask";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +12,9 @@ import { apiService, Usuario } from "@/services/api";
 import { maskCPF, maskCNPJ, sanitizeDocument, detectDocumentType, isValidCpfRegex, validateCNPJ, isValidCnpjRegex } from "@/utils/validators";
 import { Mail, Phone, Users, Search, Pencil, Trash2, Save, X } from "lucide-react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { AlertEmpresaNaoAprovada } from "@/components/AlertEmpresaNaoAprovada";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 
 const formatDocumentForDisplay = (value?: string | null) => {
   if (!value) return "";
@@ -30,6 +31,7 @@ const CompanyUsers = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [funcionarios, setFuncionarios] = useState<Usuario[]>([]);
   const [empresaId, setEmpresaId] = useState<string | null>(null);
+  const [empresaAprovada, setEmpresaAprovada] = useState<boolean>(false);
   const [novoUsuario, setNovoUsuario] = useState({
     nome: "",
     email: "",
@@ -69,7 +71,20 @@ const CompanyUsers = () => {
         }
 
         setEmpresaId(response.data.empresaId);
-        await carregarFuncionarios(response.data.empresaId);
+        
+        // Buscar dados da empresa para verificar se está aprovada
+        try {
+          const empresaData = await apiService.buscarEmpresaPorId(response.data.empresaId);
+          setEmpresaAprovada(empresaData.statusEmpresa);
+          
+          // Só carrega funcionários se empresa estiver aprovada
+          if (empresaData.statusEmpresa) {
+            await carregarFuncionarios(response.data.empresaId);
+          }
+        } catch (error) {
+          console.error("Erro ao verificar status da empresa:", error);
+          setEmpresaAprovada(false);
+        }
       } catch (error: any) {
         console.error("Erro ao carregar dados:", error);
         toast.error(error.message || "Não foi possível carregar os usuários.");
@@ -303,23 +318,19 @@ const CompanyUsers = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar userType="store" />
-        <div className="flex-1 flex items-center justify-center bg-background">
-          <div className="text-center space-y-2">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Carregando dados da empresa...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-2">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Carregando dados da empresa...</p>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar userType="store" />
-      <main className="flex-1 container mx-auto px-4 py-8 space-y-6">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main className="container mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-2xl flex items-center gap-2">
@@ -335,8 +346,16 @@ const CompanyUsers = () => {
           </Button>
         </div>
 
+        {/* Alerta de empresa não aprovada */}
+        {!empresaAprovada && (
+          <AlertEmpresaNaoAprovada 
+            title="Gerenciamento de Usuários Bloqueado"
+            message="O gerenciamento de colaboradores estará disponível após a aprovação da sua empresa. Aguarde a análise do nosso time ou entre em contato com o suporte."
+          />
+        )}
+
         <div className="grid gap-6 md:grid-cols-[2fr,1fr]">
-          <Card className="shadow-lg">
+          <Card className={`shadow-lg ${!empresaAprovada ? 'opacity-50 pointer-events-none' : ''}`}>
             <CardHeader>
               <CardTitle>Colaboradores ativos</CardTitle>
               <CardDescription>Lista de usuários com acesso à sua empresa.</CardDescription>
@@ -495,7 +514,7 @@ const CompanyUsers = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className={`shadow-lg ${!empresaAprovada ? 'opacity-50 pointer-events-none' : ''}`}>
             <CardHeader>
               <CardTitle>Adicionar novo usuário</CardTitle>
               <CardDescription>Informe os dados do colaborador que receberá acesso.</CardDescription>

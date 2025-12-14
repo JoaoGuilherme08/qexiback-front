@@ -11,9 +11,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus, Edit, Trash2, Search, Package } from "lucide-react";
 import { toast } from "sonner";
-import { produtoService, Produto, ProdutoRequest, uploadService } from "@/services/api";
+import { produtoService, Produto, ProdutoRequest, uploadService, apiService } from "@/services/api";
 import { Combobox } from "@/components/ui/combobox";
 import { CATEGORIAS_PRODUTOS } from "@/constants/categorias";
+import { AlertEmpresaNaoAprovada } from "@/components/AlertEmpresaNaoAprovada";
 
 interface UserData {
   userId: string;
@@ -33,6 +34,7 @@ const StoreProducts = () => {
   const [products, setProducts] = useState<Produto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [empresaAprovada, setEmpresaAprovada] = useState<boolean>(false);
   
   // Estados do formulário
   const [productName, setProductName] = useState("");
@@ -59,6 +61,16 @@ const StoreProducts = () => {
   
   const platformPercentage = 5; // Porcentagem da plataforma
 
+  const checkEmpresaStatus = async (empresaId: string) => {
+    try {
+      const empresaData = await apiService.buscarEmpresaPorId(empresaId);
+      setEmpresaAprovada(empresaData.statusEmpresa);
+    } catch (error) {
+      console.error("Erro ao verificar status da empresa:", error);
+      setEmpresaAprovada(false);
+    }
+  };
+
   useEffect(() => {
     const checkAuth = () => {
       const authToken = localStorage.getItem("authToken");
@@ -80,6 +92,9 @@ const StoreProducts = () => {
           navigate("/store/dashboard");
           return;
         }
+        
+        // Verificar status da empresa
+        checkEmpresaStatus(parsedUserData.empresaId);
         
         loadProducts(parsedUserData.empresaId);
       } catch (error) {
@@ -358,7 +373,12 @@ const StoreProducts = () => {
               </Button>
               <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="hero" className="gap-2" onClick={() => resetForm()}>
+                  <Button 
+                    variant="hero" 
+                    className="gap-2" 
+                    onClick={() => resetForm()}
+                    disabled={!empresaAprovada}
+                  >
                     <Plus className="w-4 h-4" />
                     Novo Produto
                   </Button>
@@ -546,8 +566,17 @@ const StoreProducts = () => {
             </div>
           </div>
 
+          {/* Alerta de empresa não aprovada */}
+          {!empresaAprovada && (
+            <AlertEmpresaNaoAprovada 
+              title="Gerenciamento de Produtos Bloqueado"
+              message="O cadastro e gerenciamento de produtos estará disponível após a aprovação da sua empresa. Aguarde a análise do nosso time ou entre em contato com o suporte."
+              className="mb-6"
+            />
+          )}
+
           {/* Search */}
-          <Card className="shadow-soft mb-6">
+          <Card className={`shadow-soft mb-6 ${!empresaAprovada ? 'opacity-50 pointer-events-none' : ''}`}>
             <CardContent className="pt-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -562,7 +591,7 @@ const StoreProducts = () => {
           </Card>
 
           {/* Products Table */}
-          <Card className="shadow-soft">
+          <Card className={`shadow-soft ${!empresaAprovada ? 'opacity-50 pointer-events-none' : ''}`}>
             <CardHeader>
               <CardTitle>Produtos Cadastrados</CardTitle>
               <CardDescription>
@@ -635,10 +664,16 @@ const StoreProducts = () => {
                             size="icon" 
                             onClick={() => handleToggleStatus(product)}
                             title={product.status ? "Desativar" : "Ativar"}
+                            disabled={!empresaAprovada}
                           >
                             {product.status ? "✓" : "✗"}
                           </Button>
-                          <Button variant="outline" size="icon" onClick={() => handleEditClick(product)}>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            onClick={() => handleEditClick(product)}
+                            disabled={!empresaAprovada}
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button 
@@ -646,6 +681,7 @@ const StoreProducts = () => {
                             size="icon" 
                             onClick={() => handleDeleteClick(product.id)} 
                             className="text-neutral-900 font-light bg-[#f4efea]"
+                            disabled={!empresaAprovada}
                           >
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
