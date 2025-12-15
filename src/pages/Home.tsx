@@ -309,28 +309,28 @@ const Home = () => {
               </div>
             ) : (
               <Tabs value={abaAtiva} onValueChange={setAbaAtiva} className="w-full">
-                <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-8 bg-muted/50 p-1 rounded-lg">
+                <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-2 md:grid-cols-4 mb-8 bg-muted/50 p-1 rounded-lg gap-1">
                   <TabsTrigger 
                     value="destaques"
-                    className="transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-soft"
+                    className="transition-all duration-200 text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-soft"
                   >
-                    Ofertas em Destaque
+                    <span className="hidden md:inline">Ofertas em</span> Destaque
                   </TabsTrigger>
                   <TabsTrigger 
                     value="categorias"
-                    className="transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-soft"
+                    className="transition-all duration-200 text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-soft"
                   >
-                    Por Categoria
+                    <span className="hidden md:inline">Por</span> Categoria
                   </TabsTrigger>
                   <TabsTrigger 
                     value="cashback"
-                    className="transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-soft"
+                    className="transition-all duration-200 text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-soft"
                   >
-                    Maior Cashback
+                    <span className="hidden md:inline">Maior</span> Cashback
                   </TabsTrigger>
                   <TabsTrigger 
                     value="empresas"
-                    className="transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-soft"
+                    className="transition-all duration-200 text-xs md:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-soft"
                   >
                     Empresas
                   </TabsTrigger>
