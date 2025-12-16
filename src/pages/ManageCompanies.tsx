@@ -36,6 +36,7 @@ import {
   Calendar,
   Percent,
 } from 'lucide-react';
+import { API_URL } from '@/services/api';
 
 interface Empresa {
   id: string;
@@ -102,7 +103,7 @@ export default function ManageCompanies() {
         return;
       }
 
-      const response = await fetch('http://localhost:8080/api/admin/empresas', {
+      const response = await fetch(`${API_URL}/admin/empresas`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -170,7 +171,7 @@ export default function ManageCompanies() {
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(
-        `http://localhost:8080/api/admin/empresas/${selectedEmpresa.id}/aprovar`,
+        `${API_URL}/admin/empresas/${selectedEmpresa.id}/aprovar`,
         {
           method: 'PUT',
           headers: {
@@ -207,7 +208,7 @@ export default function ManageCompanies() {
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(
-        `http://localhost:8080/api/admin/empresas/${selectedEmpresa.id}/rejeitar`,
+        `${API_URL}/admin/empresas/${selectedEmpresa.id}/rejeitar`,
         {
           method: 'PUT',
           headers: {
@@ -254,7 +255,7 @@ export default function ManageCompanies() {
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(
-        `http://localhost:8080/api/admin/empresas/${selectedEmpresa.id}/taxa`,
+        `${API_URL}/admin/empresas/${selectedEmpresa.id}/taxa`,
         {
           method: 'PUT',
           headers: {
