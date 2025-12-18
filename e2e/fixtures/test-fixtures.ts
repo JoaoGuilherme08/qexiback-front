@@ -54,6 +54,41 @@ export function generateTestData() {
   };
 }
 
+// Helper para limpar bloqueios de brute force antes dos testes
+export async function clearBruteForceBlocks(request: any) {
+  try {
+    // Limpar bloqueios via SQL direto (se tiver acesso ao banco)
+    // Ou criar um endpoint admin para isso
+    // Por enquanto, vamos tentar limpar via requisição SQL se possível
+    // Nota: Isso requer acesso direto ao banco ou um endpoint admin
+    
+    // Alternativa: Limpar tentativas antigas que podem estar causando bloqueios
+    // Fazendo uma requisição que força limpeza (se houver endpoint)
+    await request.post(`${API_BASE_URL}/admin/cleanup-blocks`).catch(() => {
+      // Se não houver endpoint, ignorar - será limpo manualmente
+    });
+  } catch (e) {
+    // Ignorar erros - pode não ter endpoint de limpeza
+  }
+}
+
+// Helper para limpar bloqueios específicos de email e IP
+export async function clearBlockForEmailAndIp(request: any, email: string, ipAddress?: string) {
+  try {
+    // Tentar limpar via SQL direto se possível
+    // Por enquanto, vamos documentar que precisa limpar manualmente
+    // ou criar um script SQL para isso
+    
+    // Se houver endpoint admin:
+    // await request.delete(`${API_BASE_URL}/admin/blocked-emails/${email}`);
+    // if (ipAddress) {
+    //   await request.delete(`${API_BASE_URL}/admin/blocked-ips/${ipAddress}`);
+    // }
+  } catch (e) {
+    // Ignorar
+  }
+}
+
 // Fixture customizado com helpers
 export const test = base.extend<{
   loginAs: (userType: 'admin' | 'empresa' | 'cliente' | 'instituicao') => Promise<void>;

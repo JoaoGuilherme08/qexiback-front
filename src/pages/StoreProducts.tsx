@@ -159,6 +159,16 @@ const StoreProducts = () => {
       return;
     }
 
+    // Validar datas
+    if (startDate && endDate) {
+      const inicio = new Date(startDate);
+      const fim = new Date(endDate);
+      if (fim < inicio) {
+        toast.error("A data fim não pode ser anterior à data de início");
+        return;
+      }
+    }
+
     try {
       setUploadingImage(true);
       
@@ -179,7 +189,13 @@ const StoreProducts = () => {
       // O productPrice já é o valor final (o que o cliente paga)
       const valorFinal = parseFloat(productPrice.replace(",", "."));
       const cashbackPercent = productCashback ? parseFloat(productCashback.replace(",", ".")) : 0;
-      const quantidadeEstoque = parseInt(productStock);
+      // Garantir que quantidadeEstoque seja um número válido
+      const quantidadeEstoque = productStock.trim() ? parseInt(productStock.trim(), 10) : 0;
+      if (isNaN(quantidadeEstoque) || quantidadeEstoque < 0) {
+        toast.error("Quantidade de estoque inválida");
+        setUploadingImage(false);
+        return;
+      }
 
       const produtoData: ProdutoRequest = {
         empresaId: userData.empresaId,
@@ -217,7 +233,16 @@ const StoreProducts = () => {
     setProductPrice(product.precoProduto.toString());
     setProductCashback(product.prcntCashback?.toString() || "");
     setProductCategory(product.categoria || "");
-    setProductStock(product.quantidadeEstoque?.toString() || "0");
+    // Carregar quantidade de estoque - usar valor do produto ou 0 se não existir
+    const estoqueValue = product.quantidadeEstoque !== null && product.quantidadeEstoque !== undefined 
+      ? product.quantidadeEstoque.toString() 
+      : "0";
+    setProductStock(estoqueValue);
+    console.log('🔍 [handleEditClick] Carregando estoque:', { 
+      quantidadeEstoque: product.quantidadeEstoque, 
+      estoqueValue,
+      produto: product 
+    });
     setFotoUrl(product.fotoUrl || "");
     setProductImage(null); // Limpar arquivo selecionado ao editar
     setImagePreview(null); // Limpar preview ao editar
@@ -235,6 +260,16 @@ const StoreProducts = () => {
     if (!productName.trim() || !productPrice.trim() || !productStock.trim()) {
       toast.error("Preencha pelo menos o nome, preço e quantidade em estoque");
       return;
+    }
+
+    // Validar datas
+    if (startDate && endDate) {
+      const inicio = new Date(startDate);
+      const fim = new Date(endDate);
+      if (fim < inicio) {
+        toast.error("A data fim não pode ser anterior à data de início");
+        return;
+      }
     }
 
     try {
@@ -257,7 +292,29 @@ const StoreProducts = () => {
       // O productPrice já é o valor final (o que o cliente paga)
       const valorFinal = parseFloat(productPrice.replace(",", "."));
       const cashbackPercent = productCashback ? parseFloat(productCashback.replace(",", ".")) : 0;
-      const quantidadeEstoque = parseInt(productStock);
+      // Garantir que quantidadeEstoque seja um número válido
+      const stockValue = productStock.trim();
+      let quantidadeEstoque: number;
+      
+      if (!stockValue || stockValue === '') {
+        // Se estiver vazio, usar 0 (campo obrigatório)
+        quantidadeEstoque = 0;
+      } else {
+        const parsed = parseInt(stockValue, 10);
+        if (isNaN(parsed) || parsed < 0) {
+          toast.error("Quantidade de estoque inválida. Use um número inteiro maior ou igual a zero.");
+          setUploadingImage(false);
+          return;
+        }
+        quantidadeEstoque = parsed;
+      }
+      
+      console.log('🔍 [handleUpdateProduct] Estoque:', { 
+        productStock, 
+        stockValue, 
+        quantidadeEstoque,
+        editingProductEstoque: editingProduct?.quantidadeEstoque 
+      });
 
       const produtoData: ProdutoRequest = {
         empresaId: userData.empresaId,
@@ -266,12 +323,18 @@ const StoreProducts = () => {
         precoProduto: valorFinal, // Valor final (o que o cliente paga)
         prcntCashback: cashbackPercent,
         categoria: productCategory.trim() || undefined,
-        quantidadeEstoque: quantidadeEstoque,
+        quantidadeEstoque: quantidadeEstoque, // Sempre enviar o valor (mesmo que seja 0)
         fotoUrl: imageUrl || undefined,
         status: editingProduct.status,
         dtInicio: startDate ? new Date(startDate).toISOString() : undefined,
         dtFim: endDate ? new Date(endDate).toISOString() : undefined,
       };
+
+      console.log('🔍 [handleUpdateProduct] Enviando dados:', { 
+        produtoData,
+        quantidadeEstoque: produtoData.quantidadeEstoque,
+        produtoId: editingProduct.id
+      });
 
       await produtoService.atualizarProduto(editingProduct.id, produtoData);
       toast.success("Produto atualizado com sucesso!");
@@ -537,7 +600,15 @@ const StoreProducts = () => {
                             id="startDate" 
                             type="date" 
                             value={startDate} 
-                            onChange={(e) => setStartDate(e.target.value)} 
+                            onChange={(e) => {
+                              const newStartDate = e.target.value;
+                              setStartDate(newStartDate);
+                              // Se a data fim for anterior à nova data início, limpar ou ajustar
+                              if (newStartDate && endDate && new Date(endDate) < new Date(newStartDate)) {
+                                setEndDate("");
+                                toast.error("A data fim foi limpa pois era anterior à nova data de início");
+                              }
+                            }} 
                           />
                         </div>
                         <div className="space-y-2">
@@ -546,7 +617,16 @@ const StoreProducts = () => {
                             id="endDate" 
                             type="date" 
                             value={endDate} 
-                            onChange={(e) => setEndDate(e.target.value)} 
+                            min={startDate || undefined}
+                            onChange={(e) => {
+                              const newEndDate = e.target.value;
+                              // Validar se a data fim não é anterior à data início
+                              if (startDate && newEndDate && new Date(newEndDate) < new Date(startDate)) {
+                                toast.error("A data fim não pode ser anterior à data de início");
+                                return;
+                              }
+                              setEndDate(newEndDate);
+                            }} 
                           />
                         </div>
                       </div>
@@ -743,7 +823,20 @@ const StoreProducts = () => {
                     min="0"
                     step="1"
                     value={productStock} 
-                    onChange={(e) => setProductStock(e.target.value)} 
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      console.log('🔍 [editStock onChange]', { value, productStock, editingProduct: editingProduct?.quantidadeEstoque });
+                      // Permitir apenas números inteiros não negativos ou string vazia
+                      if (value === '' || /^\d+$/.test(value)) {
+                        setProductStock(value);
+                      }
+                    }} 
+                    onBlur={(e) => {
+                      // Garantir que se o campo estiver vazio, use 0
+                      if (!e.target.value || e.target.value.trim() === '') {
+                        setProductStock('0');
+                      }
+                    }}
                   />
                   <p className="text-xs text-muted-foreground">
                     Quantidade de unidades disponíveis para venda
@@ -850,7 +943,15 @@ const StoreProducts = () => {
                         id="editStartDate" 
                         type="date" 
                         value={startDate} 
-                        onChange={(e) => setStartDate(e.target.value)} 
+                        onChange={(e) => {
+                          const newStartDate = e.target.value;
+                          setStartDate(newStartDate);
+                          // Se a data fim for anterior à nova data início, limpar ou ajustar
+                          if (newStartDate && endDate && new Date(endDate) < new Date(newStartDate)) {
+                            setEndDate("");
+                            toast.error("A data fim foi limpa pois era anterior à nova data de início");
+                          }
+                        }} 
                       />
                     </div>
                     <div className="space-y-2">
@@ -859,7 +960,16 @@ const StoreProducts = () => {
                         id="editEndDate" 
                         type="date" 
                         value={endDate} 
-                        onChange={(e) => setEndDate(e.target.value)} 
+                        min={startDate || undefined}
+                        onChange={(e) => {
+                          const newEndDate = e.target.value;
+                          // Validar se a data fim não é anterior à data início
+                          if (startDate && newEndDate && new Date(newEndDate) < new Date(startDate)) {
+                            toast.error("A data fim não pode ser anterior à data de início");
+                            return;
+                          }
+                          setEndDate(newEndDate);
+                        }} 
                       />
                     </div>
                   </div>

@@ -13,7 +13,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:headed": "playwright test --headed",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:clear-blocks": "cd e2e/utils && ./clear-blocks.sh",
+    "test:e2e:clean": "npm run test:e2e:clear-blocks && playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

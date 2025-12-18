@@ -193,11 +193,22 @@ const Profile = () => {
       setFuncionarios(lista.filter(func => func.tipoUsuario === "FUNCIONARIO"));
     } catch (error: any) {
       console.error("Erro ao listar funcionários:", error);
-      toast({
-        title: "Erro",
-        description: error.message || "Não foi possível carregar os funcionários.",
-        variant: "destructive"
-      });
+      // Se for erro 403 ou acesso negado, apenas limpar funcionários sem mostrar toast
+      // (pode ser que a empresa não esteja aprovada ainda)
+      if (error.message?.includes('Acesso negado') || error.message?.includes('403')) {
+        setFuncionarios([]);
+        // Não mostrar toast para 403 - é esperado quando empresa não está aprovada
+        return;
+      }
+      // Para outros erros, mostrar toast apenas se não for um erro silencioso
+      if (!error.message?.includes('silencioso')) {
+        toast({
+          title: "Aviso",
+          description: error.message || "Não foi possível carregar os funcionários.",
+          variant: "default"
+        });
+      }
+      setFuncionarios([]);
     } finally {
       setIsLoadingFuncionarios(false);
     }
@@ -241,7 +252,8 @@ const Profile = () => {
       setEmpresaIdAssociada(empresa.id || empresaIdToken || mapped.id || null);
       setHasEmpresaVinculada(true);
 
-      if (tipo === "ADMINISTRADOR_EMPRESA" && (empresa.id || empresaIdToken)) {
+      // Só carregar funcionários se empresa estiver aprovada e usuário for administrador
+      if (tipo === "ADMINISTRADOR_EMPRESA" && (empresa.id || empresaIdToken) && empresa.statusEmpresa) {
         await carregarFuncionarios(empresa.id || empresaIdToken!);
       } else if (tipo !== "ADMINISTRADOR_EMPRESA") {
         setFuncionarios([]);
@@ -672,7 +684,11 @@ const Profile = () => {
   const showInstitutionSection = hasInstitution && tipoUsuario === "INSTITUICAO";
   const canEditCompany = hasCompany && (tipoUsuario === "EMPRESA" || tipoUsuario === "ADMINISTRADOR_EMPRESA");
   const canEditInstitution = hasInstitution && tipoUsuario === "INSTITUICAO";
-  const showEmployeeManagement = hasCompany && tipoUsuario === "ADMINISTRADOR_EMPRESA";
+  // Só mostrar gestão de funcionários se empresa estiver cadastrada, aprovada e usuário for administrador
+  const showEmployeeManagement = hasCompany && 
+                                  tipoUsuario === "ADMINISTRADOR_EMPRESA" && 
+                                  empresaIdAssociada && 
+                                  companyData.statusEmpresa;
   const canCreateOrganization = !hasCompany && !hasInstitution && tipoUsuario === "CLIENTE";
 
   return <div className="min-h-screen flex flex-col bg-background">
@@ -1232,7 +1248,7 @@ const Profile = () => {
           )}
 
 
-          {showEmployeeManagement && empresaIdAssociada && (
+          {showEmployeeManagement && empresaIdAssociada && companyData.statusEmpresa && (
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">

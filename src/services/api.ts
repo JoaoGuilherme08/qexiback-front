@@ -632,8 +632,21 @@ export const apiService = {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Erro ao listar funcionários');
+      // Se for 403, pode ser que a empresa não esteja aprovada ou usuário não tenha permissão
+      if (response.status === 403) {
+        throw new Error('Acesso negado. Verifique se a empresa está aprovada e você tem permissão.');
+      }
+      
+      // Tentar ler JSON de erro, mas tratar caso a resposta esteja vazia
+      let errorData;
+      try {
+        const text = await response.text();
+        errorData = text ? JSON.parse(text) : {};
+      } catch {
+        errorData = {};
+      }
+      
+      throw new Error(errorData.message || `Erro ao listar funcionários (${response.status})`);
     }
 
     return response.json();
@@ -704,6 +717,7 @@ export interface Produto {
   dtCadastro: string;
   dtInicio?: string;
   dtFim?: string;
+  quantidadeEstoque?: number;
   nomeFantasiaEmpresa?: string;
   cnpjEmpresa?: string;
 }
@@ -719,6 +733,7 @@ export interface ProdutoRequest {
   status?: boolean;
   dtInicio?: string;
   dtFim?: string;
+  quantidadeEstoque?: number;
 }
 
 export const produtoService = {

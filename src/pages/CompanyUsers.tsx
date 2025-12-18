@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import InputMask from "react-input-mask";
+import { MaskedInput } from "@/components/ui/masked-input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -449,18 +449,12 @@ const CompanyUsers = () => {
 
                             <div className="space-y-2">
                               <Label>Telefone</Label>
-                              <InputMask
-                                mask="(99) 99999-9999"
+                              <MaskedInput
+                                mask="phone"
                                 value={editUsuario.telefone}
-                                onChange={e => handleEditUsuarioChange("telefone", e.target.value)}
-                              >
-                                {(inputProps: any) => (
-                                  <Input
-                                    {...inputProps}
-                                    placeholder="(00) 00000-0000"
-                                  />
-                                )}
-                              </InputMask>
+                                onChange={(value) => handleEditUsuarioChange("telefone", value)}
+                                placeholder="(00) 00000-0000"
+                              />
                             </div>
 
                             <div className="space-y-2">
@@ -545,19 +539,13 @@ const CompanyUsers = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="novoTelefone">Telefone</Label>
-                <InputMask
-                  mask="(99) 99999-9999"
+                <MaskedInput
+                  mask="phone"
                   value={novoUsuario.telefone}
-                  onChange={e => handleNovoUsuarioChange("telefone", e.target.value)}
-                >
-                  {(inputProps: any) => (
-                    <Input
-                      {...inputProps}
-                      id="novoTelefone"
-                      placeholder="(00) 00000-0000"
-                    />
-                  )}
-                </InputMask>
+                  onChange={(value) => handleNovoUsuarioChange("telefone", value)}
+                  id="novoTelefone"
+                  placeholder="(00) 00000-0000"
+                />
               </div>
 
               <div className="space-y-2">

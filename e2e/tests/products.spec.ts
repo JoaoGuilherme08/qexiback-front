@@ -1,10 +1,23 @@
 import { test, expect, Page } from '@playwright/test';
 
 // Usuário empresa já cadastrado e aprovado no banco
+// Senha: 123456 (conforme outros testes que funcionam)
 const EMPRESA_USER = {
   email: 'empresa.teste@qexiback.com',
   password: '123456'
 };
+
+// Helper para limpar bloqueios de brute force
+// IMPORTANTE: Execute o script clear-blocks.sh antes de rodar os testes
+// ou limpe manualmente no banco:
+// DELETE FROM tb_blocked_emails WHERE email LIKE '%.teste@qexiback.com';
+// DELETE FROM tb_blocked_ips WHERE blocked_until < NOW();
+// DELETE FROM tb_login_attempts WHERE email LIKE '%.teste@qexiback.com';
+async function clearBruteForceBlocks(request: any) {
+  // Por enquanto, apenas log - execute o script clear-blocks.sh manualmente
+  // ou configure um endpoint admin para limpar bloqueios
+  console.log('⚠️  Lembre-se de executar ./e2e/utils/clear-blocks.sh antes dos testes');
+}
 
 // Helpers
 async function login(page: Page, email: string, password: string) {
@@ -72,6 +85,11 @@ async function deleteProduct(page: Page, productName: string): Promise<boolean> 
 }
 
 test.describe('Gestão de Produtos - Empresa', () => {
+  
+  // Limpar bloqueios antes de cada teste
+  test.beforeEach(async ({ request }) => {
+    await clearBruteForceBlocks(request);
+  });
   
   test('Empresa deve criar um novo produto', async ({ page }) => {
     const productName = `Produto Criar ${Date.now()}`;
@@ -176,5 +194,85 @@ test.describe('Gestão de Produtos - Empresa', () => {
     await page.waitForTimeout(1000);
     
     await expect(page.locator(`text=${productName}`).first()).not.toBeVisible({ timeout: 5000 });
+  });
+
+  test('Empresa deve salvar quantidade de estoque corretamente', async ({ page }) => {
+    const productName = `Produto Estoque ${Date.now()}`;
+    const quantidadeEstoque = 75;
+    
+    await login(page, EMPRESA_USER.email, EMPRESA_USER.password);
+    await page.goto('/store/products');
+    await page.waitForLoadState('networkidle');
+
+    // Criar produto com quantidade de estoque
+    const novoProdutoBtn = page.locator('button:has-text("Novo Produto")');
+    await novoProdutoBtn.click();
+    await page.waitForSelector('[role="dialog"]', { state: 'visible' });
+    
+    await page.fill('#productName', productName);
+    await page.fill('#price', '150');
+    await page.fill('#cashback', '10');
+    await page.fill('#stock', quantidadeEstoque.toString());
+    await page.fill('#description', 'Produto para testar estoque');
+    
+    await page.click('button:has-text("Cadastrar")');
+    
+    await expect(page.locator('.sonner-toast:has-text("sucesso"), [data-sonner-toast]:has-text("sucesso")').first()).toBeVisible({ timeout: 10000 });
+    await page.waitForLoadState('networkidle');
+    
+    // Verificar se o produto aparece na lista
+    await expect(page.locator(`text=${productName}`).first()).toBeVisible({ timeout: 10000 });
+    
+    // Verificar se a quantidade de estoque está sendo exibida corretamente
+    const productRow = page.locator(`.rounded-lg:has-text("${productName}")`).first();
+    await expect(productRow).toBeVisible();
+    
+    // Verificar se o estoque aparece na interface (pode estar em um badge ou texto)
+    const stockText = productRow.locator(`text=${quantidadeEstoque}`);
+    await expect(stockText.first()).toBeVisible({ timeout: 5000 });
+    
+    // Editar o produto e verificar se o estoque é mantido/carregado corretamente
+    const buttons = productRow.locator('button');
+    const editBtn = buttons.nth(1);
+    await editBtn.click();
+    
+    await page.waitForSelector('[role="dialog"]', { state: 'visible' });
+    
+    // Verificar se o campo de estoque está preenchido com o valor correto
+    const stockInput = page.locator('#editStock');
+    await expect(stockInput).toHaveValue(quantidadeEstoque.toString());
+    
+    // Alterar o estoque
+    const novaQuantidade = 100;
+    await page.fill('#editStock', novaQuantidade.toString());
+    
+    await page.locator('[role="dialog"] button:has-text("Salvar")').first().click();
+    
+    await expect(page.locator('.sonner-toast:has-text("atualizado"), [data-sonner-toast]:has-text("sucesso")').first()).toBeVisible({ timeout: 10000 });
+    await page.waitForLoadState('networkidle');
+    
+    // Verificar se o novo estoque foi salvo
+    await page.fill('input[placeholder*="Buscar"]', productName);
+    await page.waitForTimeout(500);
+    
+    const updatedProductRow = page.locator(`.rounded-lg:has-text("${productName}")`).first();
+    await expect(updatedProductRow).toBeVisible();
+    
+    // Verificar se o novo estoque aparece
+    const newStockText = updatedProductRow.locator(`text=${novaQuantidade}`);
+    await expect(newStockText.first()).toBeVisible({ timeout: 5000 });
+    
+    // Verificar novamente editando para confirmar que foi salvo no banco
+    const editBtnAgain = updatedProductRow.locator('button').nth(1);
+    await editBtnAgain.click();
+    
+    await page.waitForSelector('[role="dialog"]', { state: 'visible' });
+    
+    const stockInputAgain = page.locator('#editStock');
+    await expect(stockInputAgain).toHaveValue(novaQuantidade.toString());
+    
+    // Fechar dialog e fazer cleanup
+    await page.locator('[role="dialog"] button:has-text("Cancelar")').first().click();
+    await deleteProduct(page, productName);
   });
 });
