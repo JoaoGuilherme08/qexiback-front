@@ -238,11 +238,6 @@ const StoreProducts = () => {
       ? product.quantidadeEstoque.toString() 
       : "0";
     setProductStock(estoqueValue);
-    console.log('🔍 [handleEditClick] Carregando estoque:', { 
-      quantidadeEstoque: product.quantidadeEstoque, 
-      estoqueValue,
-      produto: product 
-    });
     setFotoUrl(product.fotoUrl || "");
     setProductImage(null); // Limpar arquivo selecionado ao editar
     setImagePreview(null); // Limpar preview ao editar
@@ -308,13 +303,6 @@ const StoreProducts = () => {
         }
         quantidadeEstoque = parsed;
       }
-      
-      console.log('🔍 [handleUpdateProduct] Estoque:', { 
-        productStock, 
-        stockValue, 
-        quantidadeEstoque,
-        editingProductEstoque: editingProduct?.quantidadeEstoque 
-      });
 
       const produtoData: ProdutoRequest = {
         empresaId: userData.empresaId,
@@ -329,12 +317,6 @@ const StoreProducts = () => {
         dtInicio: startDate ? new Date(startDate).toISOString() : undefined,
         dtFim: endDate ? new Date(endDate).toISOString() : undefined,
       };
-
-      console.log('🔍 [handleUpdateProduct] Enviando dados:', { 
-        produtoData,
-        quantidadeEstoque: produtoData.quantidadeEstoque,
-        produtoId: editingProduct.id
-      });
 
       await produtoService.atualizarProduto(editingProduct.id, produtoData);
       toast.success("Produto atualizado com sucesso!");
@@ -825,7 +807,6 @@ const StoreProducts = () => {
                     value={productStock} 
                     onChange={(e) => {
                       const value = e.target.value;
-                      console.log('🔍 [editStock onChange]', { value, productStock, editingProduct: editingProduct?.quantidadeEstoque });
                       // Permitir apenas números inteiros não negativos ou string vazia
                       if (value === '' || /^\d+$/.test(value)) {
                         setProductStock(value);
