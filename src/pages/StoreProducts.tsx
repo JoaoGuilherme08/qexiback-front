@@ -173,10 +173,14 @@ const StoreProducts = () => {
       setUploadingImage(true);
       
       // Fazer upload da imagem se houver arquivo selecionado
-      let imageUrl = fotoUrl;
+      let imagePath = fotoUrl;
       if (productImage) {
         try {
-          imageUrl = await uploadService.uploadProdutoImagem(productImage);
+          const uploadResult = await uploadService.uploadProdutoImagem(productImage);
+          // Usar path para salvar no banco (não a URL completa)
+          imagePath = uploadResult.path;
+          // Atualizar preview com a URL completa para exibição
+          setImagePreview(uploadResult.url);
           toast.success("Imagem enviada com sucesso!");
         } catch (uploadError: any) {
           console.error("Erro ao fazer upload da imagem:", uploadError);
@@ -205,7 +209,7 @@ const StoreProducts = () => {
         prcntCashback: cashbackPercent,
         categoria: productCategory.trim() || undefined,
         quantidadeEstoque: quantidadeEstoque,
-        fotoUrl: imageUrl || undefined,
+        fotoUrl: imagePath || undefined, // Salvar apenas o path relativo no banco
         status: true,
         dtInicio: startDate ? new Date(startDate).toISOString() : undefined,
         dtFim: endDate ? new Date(endDate).toISOString() : undefined,
@@ -271,10 +275,14 @@ const StoreProducts = () => {
       setUploadingImage(true);
       
       // Fazer upload da imagem se houver arquivo selecionado
-      let imageUrl = fotoUrl;
+      let imagePath = fotoUrl;
       if (productImage) {
         try {
-          imageUrl = await uploadService.uploadProdutoImagem(productImage);
+          const uploadResult = await uploadService.uploadProdutoImagem(productImage);
+          // Usar path para salvar no banco (não a URL completa)
+          imagePath = uploadResult.path;
+          // Atualizar preview com a URL completa para exibição
+          setImagePreview(uploadResult.url);
           toast.success("Imagem enviada com sucesso!");
         } catch (uploadError: any) {
           console.error("Erro ao fazer upload da imagem:", uploadError);
@@ -312,7 +320,7 @@ const StoreProducts = () => {
         prcntCashback: cashbackPercent,
         categoria: productCategory.trim() || undefined,
         quantidadeEstoque: quantidadeEstoque, // Sempre enviar o valor (mesmo que seja 0)
-        fotoUrl: imageUrl || undefined,
+        fotoUrl: imagePath || undefined, // Salvar apenas o path relativo no banco
         status: editingProduct.status,
         dtInicio: startDate ? new Date(startDate).toISOString() : undefined,
         dtFim: endDate ? new Date(endDate).toISOString() : undefined,

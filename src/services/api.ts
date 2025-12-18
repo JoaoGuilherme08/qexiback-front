@@ -1119,8 +1119,14 @@ export const transacaoService = {
   },
 };
 
+export interface UploadResponse {
+  url: string;  // URL completa para exibição/preview (presigned URL válida por 7 dias)
+  path: string;  // Path relativo para salvar no banco de dados
+  message?: string;
+}
+
 export const uploadService = {
-  async uploadProdutoImagem(file: File): Promise<string> {
+  async uploadProdutoImagem(file: File): Promise<UploadResponse> {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -1138,10 +1144,14 @@ export const uploadService = {
     }
 
     const data = await response.json();
-    return data.url;
+    return {
+      url: data.url,
+      path: data.path,
+      message: data.message,
+    };
   },
 
-  async uploadUsuarioImagem(file: File): Promise<string> {
+  async uploadUsuarioImagem(file: File): Promise<UploadResponse> {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -1159,7 +1169,11 @@ export const uploadService = {
     }
 
     const data = await response.json();
-    return data.url;
+    return {
+      url: data.url,
+      path: data.path,
+      message: data.message,
+    };
   },
 };
 
