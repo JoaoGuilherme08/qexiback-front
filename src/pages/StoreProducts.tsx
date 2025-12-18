@@ -242,9 +242,10 @@ const StoreProducts = () => {
       ? product.quantidadeEstoque.toString() 
       : "0";
     setProductStock(estoqueValue);
+    // fotoUrl do produto já vem como URL completa da API, usar para preview
     setFotoUrl(product.fotoUrl || "");
     setProductImage(null); // Limpar arquivo selecionado ao editar
-    setImagePreview(null); // Limpar preview ao editar
+    setImagePreview(product.fotoUrl || null); // Usar URL completa da API para preview
     setStartDate(product.dtInicio ? new Date(product.dtInicio).toISOString().split('T')[0] : "");
     setEndDate(product.dtFim ? new Date(product.dtFim).toISOString().split('T')[0] : "");
     setEditDialogOpen(true);
@@ -275,7 +276,7 @@ const StoreProducts = () => {
       setUploadingImage(true);
       
       // Fazer upload da imagem se houver arquivo selecionado
-      let imagePath = fotoUrl;
+      let imagePath: string | undefined = undefined;
       if (productImage) {
         try {
           const uploadResult = await uploadService.uploadProdutoImagem(productImage);
@@ -290,6 +291,12 @@ const StoreProducts = () => {
           setUploadingImage(false);
           return;
         }
+      } else {
+        // Se não há arquivo novo, manter o path existente do produto
+        // O editingProduct.fotoUrl vem como URL completa da API, mas precisamos do path
+        // Se não houver novo upload, não atualizar o campo fotoUrl (manter o existente)
+        // O backend já tem o path salvo, então não precisamos enviar nada se não houver novo arquivo
+        imagePath = undefined; // undefined significa "não alterar"
       }
 
       // O productPrice já é o valor final (o que o cliente paga)
@@ -320,7 +327,7 @@ const StoreProducts = () => {
         prcntCashback: cashbackPercent,
         categoria: productCategory.trim() || undefined,
         quantidadeEstoque: quantidadeEstoque, // Sempre enviar o valor (mesmo que seja 0)
-        fotoUrl: imagePath || undefined, // Salvar apenas o path relativo no banco
+        fotoUrl: imagePath, // Salvar apenas o path relativo no banco (ou undefined para não alterar)
         status: editingProduct.status,
         dtInicio: startDate ? new Date(startDate).toISOString() : undefined,
         dtFim: endDate ? new Date(endDate).toISOString() : undefined,
@@ -568,17 +575,8 @@ const StoreProducts = () => {
                         </div>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        Selecione uma imagem ou cole uma URL abaixo. A imagem será enviada ao salvar o produto.
+                        Selecione uma imagem. A imagem será enviada ao salvar o produto.
                       </p>
-                      <Input 
-                        id="fotoUrl" 
-                        placeholder="Ou cole aqui a URL da imagem" 
-                        value={fotoUrl}
-                        onChange={(e) => {
-                          setFotoUrl(e.target.value);
-                          setProductImage(null); // Limpar arquivo se usar URL
-                        }}
-                      />
                     </div>
 
                     <div className="space-y-2">
@@ -681,7 +679,17 @@ const StoreProducts = () => {
                       <div className="flex items-center gap-4 flex-1">
                         <div className="w-12 h-12 gradient-secondary rounded-lg flex items-center justify-center bg-[#00ea7c]">
                           {product.fotoUrl ? (
-                            <img src={product.fotoUrl} alt={product.nomeProduto} className="w-full h-full object-cover rounded-lg" />
+                            <img 
+                              src={product.fotoUrl} 
+                              alt={product.nomeProduto} 
+                              className="w-full h-full object-cover rounded-lg"
+                              onError={(e) => {
+                                console.error("Erro ao carregar imagem:", product.fotoUrl, e);
+                                // Se falhar, esconder a imagem e mostrar o ícone
+                                e.currentTarget.style.display = 'none';
+                              }}
+                              crossOrigin="anonymous"
+                            />
                           ) : (
                             <Package className="w-6 h-6 text-white" />
                           )}
@@ -910,17 +918,8 @@ const StoreProducts = () => {
                     </div>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Selecione uma imagem ou cole uma URL abaixo. A imagem será enviada ao salvar as alterações.
+                    Selecione uma imagem. A imagem será enviada ao salvar as alterações.
                   </p>
-                  <Input 
-                    id="editFotoUrl" 
-                    placeholder="Ou cole aqui a URL da imagem" 
-                    value={fotoUrl}
-                    onChange={(e) => {
-                      setFotoUrl(e.target.value);
-                      setProductImage(null); // Limpar arquivo se usar URL
-                    }}
-                  />
                 </div>
 
                 <div className="space-y-2">
