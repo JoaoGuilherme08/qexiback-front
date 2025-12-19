@@ -171,24 +171,6 @@ const StoreProducts = () => {
 
     try {
       setUploadingImage(true);
-      
-      // Fazer upload da imagem se houver arquivo selecionado
-      let imagePath = fotoUrl;
-      if (productImage) {
-        try {
-          const uploadResult = await uploadService.uploadProdutoImagem(productImage);
-          // Usar path para salvar no banco (não a URL completa)
-          imagePath = uploadResult.path;
-          // Atualizar preview com a URL completa para exibição
-          setImagePreview(uploadResult.url);
-          toast.success("Imagem enviada com sucesso!");
-        } catch (uploadError: any) {
-          console.error("Erro ao fazer upload da imagem:", uploadError);
-          toast.error(uploadError.message || "Erro ao fazer upload da imagem");
-          setUploadingImage(false);
-          return;
-        }
-      }
 
       // O productPrice já é o valor final (o que o cliente paga)
       const valorFinal = parseFloat(productPrice.replace(",", "."));
@@ -209,16 +191,23 @@ const StoreProducts = () => {
         prcntCashback: cashbackPercent,
         categoria: productCategory.trim() || undefined,
         quantidadeEstoque: quantidadeEstoque,
-        fotoUrl: imagePath || undefined, // Salvar apenas o path relativo no banco
+        // Se houver imagem, não enviar fotoUrl (o backend vai fazer upload)
+        // Se não houver imagem mas houver fotoUrl (URL manual), usar ela
+        fotoUrl: (!productImage && fotoUrl) ? fotoUrl : undefined,
         status: true,
         dtInicio: startDate ? new Date(startDate).toISOString() : undefined,
         dtFim: endDate ? new Date(endDate).toISOString() : undefined,
       };
 
-      await produtoService.criarProduto(produtoData);
+      // Enviar produto com imagem (se houver) ou sem imagem
+      // O backend vai fazer o upload da imagem no Tebi.io automaticamente
+      const produtoCriado = await produtoService.criarProduto(produtoData, productImage || undefined);
+      console.log("Produto criado com sucesso:", produtoCriado);
+      console.log("FotoUrl do produto criado:", produtoCriado.fotoUrl);
       toast.success("Produto cadastrado com sucesso!");
       resetForm();
       setCreateDialogOpen(false);
+      // Recarregar produtos para obter URLs atualizadas
       loadProducts(userData.empresaId);
     } catch (error: any) {
       console.error("Erro ao criar produto:", error);
@@ -274,30 +263,6 @@ const StoreProducts = () => {
 
     try {
       setUploadingImage(true);
-      
-      // Fazer upload da imagem se houver arquivo selecionado
-      let imagePath: string | undefined = undefined;
-      if (productImage) {
-        try {
-          const uploadResult = await uploadService.uploadProdutoImagem(productImage);
-          // Usar path para salvar no banco (não a URL completa)
-          imagePath = uploadResult.path;
-          // Atualizar preview com a URL completa para exibição
-          setImagePreview(uploadResult.url);
-          toast.success("Imagem enviada com sucesso!");
-        } catch (uploadError: any) {
-          console.error("Erro ao fazer upload da imagem:", uploadError);
-          toast.error(uploadError.message || "Erro ao fazer upload da imagem");
-          setUploadingImage(false);
-          return;
-        }
-      } else {
-        // Se não há arquivo novo, manter o path existente do produto
-        // O editingProduct.fotoUrl vem como URL completa da API, mas precisamos do path
-        // Se não houver novo upload, não atualizar o campo fotoUrl (manter o existente)
-        // O backend já tem o path salvo, então não precisamos enviar nada se não houver novo arquivo
-        imagePath = undefined; // undefined significa "não alterar"
-      }
 
       // O productPrice já é o valor final (o que o cliente paga)
       const valorFinal = parseFloat(productPrice.replace(",", "."));
@@ -327,17 +292,23 @@ const StoreProducts = () => {
         prcntCashback: cashbackPercent,
         categoria: productCategory.trim() || undefined,
         quantidadeEstoque: quantidadeEstoque, // Sempre enviar o valor (mesmo que seja 0)
-        fotoUrl: imagePath, // Salvar apenas o path relativo no banco (ou undefined para não alterar)
+        // Se não houver nova imagem, não enviar fotoUrl (o backend manterá a atual)
+        fotoUrl: undefined,
         status: editingProduct.status,
         dtInicio: startDate ? new Date(startDate).toISOString() : undefined,
         dtFim: endDate ? new Date(endDate).toISOString() : undefined,
       };
 
-      await produtoService.atualizarProduto(editingProduct.id, produtoData);
+      // Enviar produto com imagem (se houver) ou sem imagem
+      // O backend vai fazer o upload da imagem no Tebi.io automaticamente
+      const produtoAtualizado = await produtoService.atualizarProduto(editingProduct.id, produtoData, productImage || undefined);
+      console.log("Produto atualizado com sucesso:", produtoAtualizado);
+      console.log("FotoUrl do produto atualizado:", produtoAtualizado.fotoUrl);
       toast.success("Produto atualizado com sucesso!");
       resetForm();
       setEditDialogOpen(false);
       setEditingProduct(null);
+      // Recarregar produtos para obter URLs atualizadas
       loadProducts(userData.empresaId);
     } catch (error: any) {
       console.error("Erro ao atualizar produto:", error);
@@ -677,18 +648,25 @@ const StoreProducts = () => {
                   filteredProducts.map((product) => (
                     <div key={product.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
                       <div className="flex items-center gap-4 flex-1">
-                        <div className="w-12 h-12 gradient-secondary rounded-lg flex items-center justify-center bg-[#00ea7c]">
+                        <div className="w-12 h-12 gradient-secondary rounded-lg flex items-center justify-center bg-[#00ea7c] overflow-hidden">
                           {product.fotoUrl ? (
                             <img 
                               src={product.fotoUrl} 
                               alt={product.nomeProduto} 
                               className="w-full h-full object-cover rounded-lg"
                               onError={(e) => {
-                                console.error("Erro ao carregar imagem:", product.fotoUrl, e);
-                                // Se falhar, esconder a imagem e mostrar o ícone
+                                console.error("Erro ao carregar imagem do produto:", {
+                                  produtoId: product.id,
+                                  produtoNome: product.nomeProduto,
+                                  fotoUrl: product.fotoUrl
+                                });
+                                // Se falhar, esconder a imagem
                                 e.currentTarget.style.display = 'none';
                               }}
-                              crossOrigin="anonymous"
+                              onLoad={() => {
+                                console.log("Imagem carregada com sucesso:", product.id, product.fotoUrl);
+                              }}
+                              loading="lazy"
                             />
                           ) : (
                             <Package className="w-6 h-6 text-white" />

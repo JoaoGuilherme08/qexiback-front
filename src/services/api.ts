@@ -737,22 +737,45 @@ export interface ProdutoRequest {
 }
 
 export const produtoService = {
-  async criarProduto(data: ProdutoRequest): Promise<Produto> {
-    const response = await fetch(`${API_URL}/produtos`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      },
-      body: JSON.stringify(data),
-    });
+  async criarProduto(data: ProdutoRequest, imageFile?: File): Promise<Produto> {
+    // Se houver imagem, usar multipart/form-data
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append('produto', new Blob([JSON.stringify(data)], { type: 'application/json' }));
+      formData.append('foto', imageFile);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Erro ao criar produto');
+      const response = await fetch(`${API_URL}/produtos`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Erro ao criar produto');
+      }
+
+      return response.json();
+    } else {
+      // Se não houver imagem, usar JSON (endpoint alternativo)
+      const response = await fetch(`${API_URL}/produtos/json`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Erro ao criar produto');
+      }
+
+      return response.json();
     }
-
-    return response.json();
   },
 
   async listarProdutos(): Promise<Produto[]> {
@@ -819,22 +842,45 @@ export const produtoService = {
     return response.json();
   },
 
-  async atualizarProduto(id: string, data: ProdutoRequest): Promise<Produto> {
-    const response = await fetch(`${API_URL}/produtos/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      },
-      body: JSON.stringify(data),
-    });
+  async atualizarProduto(id: string, data: ProdutoRequest, imageFile?: File): Promise<Produto> {
+    // Se houver imagem, usar multipart/form-data
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append('produto', new Blob([JSON.stringify(data)], { type: 'application/json' }));
+      formData.append('foto', imageFile);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Erro ao atualizar produto');
+      const response = await fetch(`${API_URL}/produtos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Erro ao atualizar produto');
+      }
+
+      return response.json();
+    } else {
+      // Se não houver imagem, usar JSON (endpoint alternativo)
+      const response = await fetch(`${API_URL}/produtos/${id}/json`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Erro ao atualizar produto');
+      }
+
+      return response.json();
     }
-
-    return response.json();
   },
 
   async alterarStatusProduto(id: string, status: boolean): Promise<Produto> {
